@@ -9,6 +9,18 @@ from shapely.geometry import LineString
 OVERPASS_URL = "https://overpass-api.de/api/interpreter"
 
 
+def _empty_bike_gdf() -> gpd.GeoDataFrame:
+    return gpd.GeoDataFrame(
+        {
+            "geometry": [],
+            "osm_id": [],
+            "highway": [],
+        },
+        geometry="geometry",
+        crs="EPSG:4326",
+    )
+
+
 def build_bike_infra_query(city_name: str, admin_level: int = 4) -> str:
     """Build Overpass query for bike infrastructure ways."""
     return f"""
@@ -52,18 +64,22 @@ def fetch_bike_infra(city_name: str, admin_level: int = 4) -> gpd.GeoDataFrame:
     print(f"Fetching bike infrastructure for {city_name}...")
 
     response = requests.get(OVERPASS_URL, params={"data": query}, timeout=300)
+    if response.status_code == 429:
+        raise RuntimeError("Overpass API rate limit exceeded; retry later.")
     response.raise_for_status()
     data = response.json()
 
     features = parse_bike_ways(data.get("elements", []))
-    gdf = gpd.GeoDataFrame(features, crs="EPSG:4326")
+    gdf = gpd.GeoDataFrame(features, geometry="geometry", crs="EPSG:4326") if features else _empty_bike_gdf()
 
     out_path = Path(f"data/{city_name.lower()}_bike_infra.geojson")
     out_path.parent.mkdir(exist_ok=True)
     gdf.to_file(out_path, driver="GeoJSON")
 
-    gdf_utm = gdf.to_crs("EPSG:32635")
-    total_km = gdf_utm.geometry.length.sum() / 1000
+    total_km = 0.0
+    if not gdf.empty:
+        gdf_utm = gdf.to_crs("EPSG:32635")
+        total_km = gdf_utm.geometry.length.sum() / 1000
     print(f"  {city_name}: {len(gdf)} bike ways, {total_km:.1f} km total")
 
     return gdf

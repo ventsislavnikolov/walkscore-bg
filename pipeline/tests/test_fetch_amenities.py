@@ -1,4 +1,21 @@
-from pipeline.fetch_amenities import build_overpass_query, parse_elements
+import geopandas as gpd
+import pytest
+
+from pipeline.fetch_amenities import build_overpass_query, fetch_city, parse_elements
+
+
+class DummyResponse:
+    def __init__(self, status_code=200, payload=None, text=""):
+        self.status_code = status_code
+        self._payload = payload if payload is not None else {}
+        self.text = text
+
+    def json(self):
+        return self._payload
+
+    def raise_for_status(self):
+        if self.status_code >= 400:
+            raise RuntimeError(f"http {self.status_code}")
 
 
 def test_build_overpass_query_contains_city():
@@ -67,3 +84,31 @@ def test_parse_elements_skips_missing_coords():
     ]
     features = parse_elements(elements)
     assert len(features) == 0
+
+
+def test_fetch_city_returns_empty_geodataframe_for_no_results(monkeypatch, tmp_path):
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(
+        "pipeline.fetch_amenities.requests.get",
+        lambda *args, **kwargs: DummyResponse(payload={"elements": []}),
+    )
+    monkeypatch.setattr(gpd.GeoDataFrame, "to_file", lambda self, *args, **kwargs: None)
+
+    gdf = fetch_city("София")
+
+    assert gdf.empty
+    assert list(gdf.columns) == ["geometry", "category", "name", "name_bg", "osm_id"]
+    assert str(gdf.crs) == "EPSG:4326"
+
+
+def test_fetch_city_raises_clear_error_on_rate_limit(monkeypatch):
+    monkeypatch.setattr(
+        "pipeline.fetch_amenities.requests.get",
+        lambda *args, **kwargs: DummyResponse(
+            status_code=429,
+            text="rate_limited",
+        ),
+    )
+
+    with pytest.raises(RuntimeError, match="Overpass API rate limit"):
+        fetch_city("София")

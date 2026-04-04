@@ -11,6 +11,20 @@ from pipeline.categories import BIKE_CATEGORIES, TRANSIT_MODES, WALK_CATEGORIES,
 OVERPASS_URL = "https://overpass-api.de/api/interpreter"
 
 
+def _empty_amenities_gdf() -> gpd.GeoDataFrame:
+    return gpd.GeoDataFrame(
+        {
+            "geometry": [],
+            "category": [],
+            "name": [],
+            "name_bg": [],
+            "osm_id": [],
+        },
+        geometry="geometry",
+        crs="EPSG:4326",
+    )
+
+
 def build_overpass_query(city_name: str, admin_level: int = 4) -> str:
     """Build Overpass QL query for all amenity categories."""
     all_parts = []
@@ -65,11 +79,13 @@ def fetch_city(city_name: str, admin_level: int = 4) -> gpd.GeoDataFrame:
     print(f"Fetching amenities for {city_name}...")
 
     response = requests.get(OVERPASS_URL, params={"data": query}, timeout=300)
+    if response.status_code == 429:
+        raise RuntimeError("Overpass API rate limit exceeded; retry later.")
     response.raise_for_status()
     data = response.json()
 
     features = parse_elements(data.get("elements", []))
-    gdf = gpd.GeoDataFrame(features, crs="EPSG:4326")
+    gdf = gpd.GeoDataFrame(features, geometry="geometry", crs="EPSG:4326") if features else _empty_amenities_gdf()
 
     out_path = Path(f"data/{city_name.lower()}_amenities.geojson")
     out_path.parent.mkdir(exist_ok=True)
