@@ -1,5 +1,4 @@
 import geopandas as gpd
-import pytest
 
 from pipeline.fetch_bike_infra import (
     build_bike_infra_query,
@@ -8,24 +7,10 @@ from pipeline.fetch_bike_infra import (
 )
 
 
-class DummyResponse:
-    def __init__(self, status_code=200, payload=None, text=""):
-        self.status_code = status_code
-        self._payload = payload if payload is not None else {}
-        self.text = text
-
-    def json(self):
-        return self._payload
-
-    def raise_for_status(self):
-        if self.status_code >= 400:
-            raise RuntimeError(f"http {self.status_code}")
-
-
 def test_build_bike_infra_query_contains_city():
-    query = build_bike_infra_query("София", admin_level=4)
-    assert '"София"' in query
-    assert '"4"' in query
+    query = build_bike_infra_query('area["name"="Sofia"]["admin_level"="8"]', ['way["highway"="cycleway"]'])
+    assert '"Sofia"' in query
+    assert '"8"' in query
     assert "out geom" in query
 
 
@@ -61,8 +46,12 @@ def test_parse_bike_ways_builds_linestring():
 def test_fetch_bike_infra_returns_empty_geodataframe_for_no_results(monkeypatch, tmp_path):
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(
-        "pipeline.fetch_bike_infra.requests.get",
-        lambda *args, **kwargs: DummyResponse(payload={"elements": []}),
+        "pipeline.fetch_bike_infra.select_area_selector",
+        lambda *args, **kwargs: 'area["name"="Sofia"]["admin_level"="8"]',
+    )
+    monkeypatch.setattr(
+        "pipeline.fetch_bike_infra.fetch_json",
+        lambda *args, **kwargs: {"elements": []},
     )
     monkeypatch.setattr(gpd.GeoDataFrame, "to_file", lambda self, *args, **kwargs: None)
 
@@ -71,16 +60,3 @@ def test_fetch_bike_infra_returns_empty_geodataframe_for_no_results(monkeypatch,
     assert gdf.empty
     assert list(gdf.columns) == ["geometry", "osm_id", "highway"]
     assert str(gdf.crs) == "EPSG:4326"
-
-
-def test_fetch_bike_infra_raises_clear_error_on_rate_limit(monkeypatch):
-    monkeypatch.setattr(
-        "pipeline.fetch_bike_infra.requests.get",
-        lambda *args, **kwargs: DummyResponse(
-            status_code=429,
-            text="rate_limited",
-        ),
-    )
-
-    with pytest.raises(RuntimeError, match="Overpass API rate limit"):
-        fetch_bike_infra("София")

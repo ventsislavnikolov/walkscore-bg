@@ -1,36 +1,32 @@
 import geopandas as gpd
-import pytest
 
-from pipeline.fetch_amenities import build_overpass_query, fetch_city, parse_elements
-
-
-class DummyResponse:
-    def __init__(self, status_code=200, payload=None, text=""):
-        self.status_code = status_code
-        self._payload = payload if payload is not None else {}
-        self.text = text
-
-    def json(self):
-        return self._payload
-
-    def raise_for_status(self):
-        if self.status_code >= 400:
-            raise RuntimeError(f"http {self.status_code}")
+from pipeline.fetch_amenities import _expand_query_part, build_overpass_query, fetch_city, parse_elements
 
 
 def test_build_overpass_query_contains_city():
-    query = build_overpass_query("София", admin_level=4)
-    assert '"София"' in query
-    assert '"4"' in query
+    query = build_overpass_query('area["name"="Sofia"]["admin_level"="8"]', ['nwr["shop"="supermarket"]'])
+    assert '"Sofia"' in query
+    assert '"8"' in query
     assert "out center" in query
 
 
 def test_build_overpass_query_includes_all_categories():
-    query = build_overpass_query("София")
+    query = build_overpass_query(
+        'area["name"="Sofia"]["admin_level"="8"]',
+        ['nwr["shop"="supermarket"]', 'nwr["amenity"="restaurant"]', 'nwr["highway"="bus_stop"]'],
+    )
     assert "supermarket" in query
     assert "restaurant" in query
     assert "bus_stop" in query
-    assert "bicycle_parking" in query
+
+
+def test_expand_query_part_splits_regex_into_exact_queries():
+    parts = _expand_query_part('nwr["amenity"~"bank|pharmacy|atm"]')
+    assert parts == [
+        'nwr["amenity"="bank"]',
+        'nwr["amenity"="pharmacy"]',
+        'nwr["amenity"="atm"]',
+    ]
 
 
 def test_parse_elements_node():
@@ -89,8 +85,12 @@ def test_parse_elements_skips_missing_coords():
 def test_fetch_city_returns_empty_geodataframe_for_no_results(monkeypatch, tmp_path):
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(
-        "pipeline.fetch_amenities.requests.get",
-        lambda *args, **kwargs: DummyResponse(payload={"elements": []}),
+        "pipeline.fetch_amenities.select_area_selector",
+        lambda *args, **kwargs: 'area["name"="Sofia"]["admin_level"="8"]',
+    )
+    monkeypatch.setattr(
+        "pipeline.fetch_amenities.fetch_json",
+        lambda *args, **kwargs: {"elements": []},
     )
     monkeypatch.setattr(gpd.GeoDataFrame, "to_file", lambda self, *args, **kwargs: None)
 
@@ -99,16 +99,3 @@ def test_fetch_city_returns_empty_geodataframe_for_no_results(monkeypatch, tmp_p
     assert gdf.empty
     assert list(gdf.columns) == ["geometry", "category", "name", "name_bg", "osm_id"]
     assert str(gdf.crs) == "EPSG:4326"
-
-
-def test_fetch_city_raises_clear_error_on_rate_limit(monkeypatch):
-    monkeypatch.setattr(
-        "pipeline.fetch_amenities.requests.get",
-        lambda *args, **kwargs: DummyResponse(
-            status_code=429,
-            text="rate_limited",
-        ),
-    )
-
-    with pytest.raises(RuntimeError, match="Overpass API rate limit"):
-        fetch_city("София")

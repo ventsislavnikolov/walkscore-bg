@@ -3,10 +3,9 @@
 from pathlib import Path
 
 import geopandas as gpd
-import requests
 from shapely.geometry import LineString
 
-OVERPASS_URL = "https://overpass-api.de/api/interpreter"
+from pipeline.overpass import fetch_json, select_area_selector
 
 
 def _empty_bike_gdf() -> gpd.GeoDataFrame:
@@ -21,17 +20,14 @@ def _empty_bike_gdf() -> gpd.GeoDataFrame:
     )
 
 
-def build_bike_infra_query(city_name: str, admin_level: int = 4) -> str:
+def build_bike_infra_query(area_selector: str, query_parts: list[str]) -> str:
     """Build Overpass query for bike infrastructure ways."""
+    queries = ";\n  ".join(f"{part}(area.city)" for part in query_parts)
     return f"""
 [out:json][timeout:180];
-area["name"="{city_name}"]["admin_level"="{admin_level}"]->.city;
+{area_selector}->.city;
 (
-  way["cycleway"](area.city);
-  way["cycleway:left"](area.city);
-  way["cycleway:right"](area.city);
-  way["highway"="cycleway"](area.city);
-  way["bicycle"="designated"](area.city);
+  {queries};
 );
 out geom;
 """
@@ -58,18 +54,35 @@ def parse_bike_ways(elements: list[dict]) -> list[dict]:
     return features
 
 
+def _bike_query_parts() -> list[str]:
+    return [
+        'way["cycleway"]',
+        'way["cycleway:left"]',
+        'way["cycleway:right"]',
+        'way["highway"="cycleway"]',
+        'way["bicycle"="designated"]',
+    ]
+
+
+def _fetch_elements(area_selector: str) -> list[dict]:
+    elements_by_key: dict[tuple[str, int], dict] = {}
+    for query_part in _bike_query_parts():
+        data = fetch_json(build_bike_infra_query(area_selector, [query_part]), timeout=300)
+        for element in data.get("elements", []):
+            key = (element.get("type", ""), element["id"])
+            elements_by_key[key] = element
+    return list(elements_by_key.values())
+
+
 def fetch_bike_infra(city_name: str, admin_level: int = 4) -> gpd.GeoDataFrame:
     """Fetch bike infrastructure for a city."""
-    query = build_bike_infra_query(city_name, admin_level)
     print(f"Fetching bike infrastructure for {city_name}...")
-
-    response = requests.get(OVERPASS_URL, params={"data": query}, timeout=300)
-    if response.status_code == 429:
-        raise RuntimeError("Overpass API rate limit exceeded; retry later.")
-    response.raise_for_status()
-    data = response.json()
-
-    features = parse_bike_ways(data.get("elements", []))
+    area_selector = select_area_selector(
+        city_name,
+        admin_level,
+        probe_selector='way["highway"="cycleway"]',
+    )
+    features = parse_bike_ways(_fetch_elements(area_selector))
     gdf = gpd.GeoDataFrame(features, geometry="geometry", crs="EPSG:4326") if features else _empty_bike_gdf()
 
     out_path = Path(f"data/{city_name.lower()}_bike_infra.geojson")

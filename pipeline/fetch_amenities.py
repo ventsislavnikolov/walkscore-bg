@@ -1,14 +1,13 @@
 """Fetch amenities from OpenStreetMap via Overpass API."""
 
 from pathlib import Path
+import re
 
 import geopandas as gpd
-import requests
 from shapely.geometry import Point
 
 from pipeline.categories import BIKE_CATEGORIES, TRANSIT_MODES, WALK_CATEGORIES, classify
-
-OVERPASS_URL = "https://overpass-api.de/api/interpreter"
+from pipeline.overpass import fetch_json, select_area_selector
 
 
 def _empty_amenities_gdf() -> gpd.GeoDataFrame:
@@ -25,21 +24,12 @@ def _empty_amenities_gdf() -> gpd.GeoDataFrame:
     )
 
 
-def build_overpass_query(city_name: str, admin_level: int = 4) -> str:
-    """Build Overpass QL query for all amenity categories."""
-    all_parts = []
-    for category in WALK_CATEGORIES.values():
-        all_parts.extend(category["query_parts"])
-    for mode in TRANSIT_MODES.values():
-        all_parts.extend(mode["query_parts"])
-    for bike in BIKE_CATEGORIES.values():
-        all_parts.extend(bike["query_parts"])
-
-    queries = ";\n  ".join(f"{part}(area.city)" for part in all_parts)
-
+def build_overpass_query(area_selector: str, query_parts: list[str]) -> str:
+    """Build Overpass QL query for a batch of amenity selectors."""
+    queries = ";\n  ".join(f"{part}(area.city)" for part in query_parts)
     return f"""
-[out:json][timeout:180];
-area["name"="{city_name}"]["admin_level"="{admin_level}"]->.city;
+[out:json][timeout:60];
+{area_selector}->.city;
 (
   {queries};
 );
@@ -73,18 +63,45 @@ def parse_elements(elements: list[dict]) -> list[dict]:
     return features
 
 
+def _all_query_parts() -> list[str]:
+    query_parts = []
+    for category in WALK_CATEGORIES.values():
+        for query_part in category["query_parts"]:
+            query_parts.extend(_expand_query_part(query_part))
+    for mode in TRANSIT_MODES.values():
+        for query_part in mode["query_parts"]:
+            query_parts.extend(_expand_query_part(query_part))
+    for bike in BIKE_CATEGORIES.values():
+        for query_part in bike["query_parts"]:
+            query_parts.extend(_expand_query_part(query_part))
+    return query_parts
+
+
+def _expand_query_part(query_part: str) -> list[str]:
+    match = re.fullmatch(r'(?P<prefix>nwr\["[^"]+")~"(?P<values>[^"]+)"\]', query_part)
+    if not match:
+        return [query_part]
+
+    prefix = match.group("prefix")
+    values = match.group("values").split("|")
+    return [f'{prefix}="{value}"]' for value in values]
+
+
+def _fetch_elements(area_selector: str) -> list[dict]:
+    elements_by_key: dict[tuple[str, int], dict] = {}
+    for query_part in _all_query_parts():
+        data = fetch_json(build_overpass_query(area_selector, [query_part]), timeout=60)
+        for element in data.get("elements", []):
+            key = (element.get("type", ""), element["id"])
+            elements_by_key[key] = element
+    return list(elements_by_key.values())
+
+
 def fetch_city(city_name: str, admin_level: int = 4) -> gpd.GeoDataFrame:
     """Fetch and classify all amenities for a city."""
-    query = build_overpass_query(city_name, admin_level)
     print(f"Fetching amenities for {city_name}...")
-
-    response = requests.get(OVERPASS_URL, params={"data": query}, timeout=300)
-    if response.status_code == 429:
-        raise RuntimeError("Overpass API rate limit exceeded; retry later.")
-    response.raise_for_status()
-    data = response.json()
-
-    features = parse_elements(data.get("elements", []))
+    area_selector = select_area_selector(city_name, admin_level)
+    features = parse_elements(_fetch_elements(area_selector))
     gdf = gpd.GeoDataFrame(features, geometry="geometry", crs="EPSG:4326") if features else _empty_amenities_gdf()
 
     out_path = Path(f"data/{city_name.lower()}_amenities.geojson")
