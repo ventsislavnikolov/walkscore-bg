@@ -4219,6 +4219,847 @@ git commit -m "chore: add Vercel deployment config"
 
 ---
 
+## Phase 6: Testing (90%+ Coverage)
+
+### Task 24: Vitest Setup + Unit Tests
+
+**Files:**
+- Create: `vitest.config.ts`, `src/test/setup.ts`
+- Create: `src/lib/__tests__/colors.test.ts`, `src/lib/__tests__/labels.test.ts`, `src/lib/__tests__/i18n.test.ts`
+- Create: `src/server/__tests__/geocode.test.ts`, `src/server/__tests__/score.test.ts`, `src/server/__tests__/heatmap.test.ts`, `src/server/__tests__/amenities.test.ts`
+- Create: `src/components/__tests__/ScoreGauge.test.tsx`, `src/components/__tests__/CategoryBreakdown.test.tsx`, `src/components/__tests__/SearchBar.test.tsx`, `src/components/__tests__/LayerSwitcher.test.tsx`, `src/components/__tests__/NearbyAmenities.test.tsx`, `src/components/__tests__/ShareEmbed.test.tsx`
+
+- [ ] **Step 1: Install Vitest + testing dependencies**
+
+```bash
+npm install -D vitest @testing-library/react @testing-library/jest-dom @testing-library/user-event \
+  jsdom @vitejs/plugin-react msw happy-dom @vitest/coverage-v8
+```
+
+- [ ] **Step 2: Configure Vitest**
+
+Create `vitest.config.ts`:
+
+```ts
+import { defineConfig } from 'vitest/config'
+import react from '@vitejs/plugin-react'
+import { resolve } from 'path'
+
+export default defineConfig({
+  plugins: [react()],
+  resolve: {
+    alias: {
+      '~': resolve(__dirname, 'src'),
+    },
+  },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: ['src/test/setup.ts'],
+    include: ['src/**/*.test.{ts,tsx}'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'text-summary', 'lcov'],
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: [
+        'src/routes/**',
+        'src/test/**',
+        'src/**/*.test.*',
+        'src/**/*.d.ts',
+      ],
+      thresholds: {
+        statements: 90,
+        branches: 85,
+        functions: 90,
+        lines: 90,
+      },
+    },
+  },
+})
+```
+
+Create `src/test/setup.ts`:
+
+```ts
+import '@testing-library/jest-dom/vitest'
+```
+
+Add scripts to `package.json`:
+
+```json
+{
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:ui": "vitest --ui"
+  }
+}
+```
+
+- [ ] **Step 3: Write utility tests — colors.test.ts**
+
+Create `src/lib/__tests__/colors.test.ts`:
+
+```ts
+import { describe, it, expect } from 'vitest'
+import { scoreColor, scoreColorClass, scoreBgClass } from '../colors'
+
+describe('scoreColor', () => {
+  it('returns emerald-600 for 90+', () => {
+    expect(scoreColor(95)).toBe('#059669')
+    expect(scoreColor(90)).toBe('#059669')
+  })
+
+  it('returns emerald-400 for 70-89', () => {
+    expect(scoreColor(70)).toBe('#34d399')
+    expect(scoreColor(85)).toBe('#34d399')
+  })
+
+  it('returns amber for 50-69', () => {
+    expect(scoreColor(50)).toBe('#fbbf24')
+  })
+
+  it('returns orange for 25-49', () => {
+    expect(scoreColor(30)).toBe('#f97316')
+  })
+
+  it('returns red for 0-24', () => {
+    expect(scoreColor(10)).toBe('#dc2626')
+    expect(scoreColor(0)).toBe('#dc2626')
+  })
+})
+
+describe('scoreColorClass', () => {
+  it('returns correct Tailwind class for each range', () => {
+    expect(scoreColorClass(95)).toBe('text-emerald-600')
+    expect(scoreColorClass(75)).toBe('text-emerald-500')
+    expect(scoreColorClass(55)).toBe('text-amber-500')
+    expect(scoreColorClass(30)).toBe('text-orange-500')
+    expect(scoreColorClass(10)).toBe('text-red-600')
+  })
+})
+
+describe('scoreBgClass', () => {
+  it('returns correct Tailwind bg class', () => {
+    expect(scoreBgClass(95)).toBe('bg-emerald-600')
+    expect(scoreBgClass(10)).toBe('bg-red-600')
+  })
+})
+```
+
+- [ ] **Step 4: Write utility tests — labels.test.ts**
+
+Create `src/lib/__tests__/labels.test.ts`:
+
+```ts
+import { describe, it, expect } from 'vitest'
+import { getScoreLabel, CATEGORY_META } from '../labels'
+
+describe('getScoreLabel', () => {
+  it('returns paradise labels for 90+', () => {
+    expect(getScoreLabel(95, 'walk', 'en')).toBe("Walker's Paradise")
+    expect(getScoreLabel(95, 'transit', 'en')).toBe("Rider's Paradise")
+    expect(getScoreLabel(95, 'bike', 'en')).toBe("Biker's Paradise")
+  })
+
+  it('returns BG labels when locale is bg', () => {
+    expect(getScoreLabel(95, 'walk', 'bg')).toBe('Ежедневен рай')
+    expect(getScoreLabel(75, 'walk', 'bg')).toBe('Много пешеходен')
+    expect(getScoreLabel(55, 'walk', 'bg')).toBe('Донякъде пешеходен')
+    expect(getScoreLabel(30, 'walk', 'bg')).toBe('Зависим от кола')
+    expect(getScoreLabel(10, 'walk', 'bg')).toBe('Почти непешеходен')
+  })
+
+  it('handles boundary values', () => {
+    expect(getScoreLabel(90, 'walk', 'en')).toBe("Walker's Paradise")
+    expect(getScoreLabel(89, 'walk', 'en')).toBe('Very Walkable')
+    expect(getScoreLabel(70, 'walk', 'en')).toBe('Very Walkable')
+    expect(getScoreLabel(69, 'walk', 'en')).toBe('Somewhat Walkable')
+  })
+})
+
+describe('CATEGORY_META', () => {
+  it('has all 6 walk categories', () => {
+    const keys = Object.keys(CATEGORY_META)
+    expect(keys).toContain('grocery')
+    expect(keys).toContain('restaurant')
+    expect(keys).toContain('shopping')
+    expect(keys).toContain('errands')
+    expect(keys).toContain('parks')
+    expect(keys).toContain('education')
+  })
+
+  it('each category has bg, en, and icon', () => {
+    for (const [key, meta] of Object.entries(CATEGORY_META)) {
+      expect(meta.bg).toBeTruthy()
+      expect(meta.en).toBeTruthy()
+      expect(meta.icon).toBeTruthy()
+    }
+  })
+})
+```
+
+- [ ] **Step 5: Write i18n tests**
+
+Create `src/lib/__tests__/i18n.test.ts`:
+
+```ts
+import { describe, it, expect, beforeEach } from 'vitest'
+import { renderHook, act } from '@testing-library/react'
+import { localeStore, setLocale, useLocale, useTranslation } from '../i18n'
+
+describe('localeStore', () => {
+  beforeEach(() => {
+    setLocale('bg')
+  })
+
+  it('defaults to bg', () => {
+    expect(localeStore.state).toBe('bg')
+  })
+
+  it('switches to en', () => {
+    setLocale('en')
+    expect(localeStore.state).toBe('en')
+  })
+})
+
+describe('useTranslation', () => {
+  beforeEach(() => {
+    setLocale('bg')
+  })
+
+  it('returns BG translation by default', () => {
+    const { result } = renderHook(() => useTranslation())
+    expect(result.current.t('hero.button')).toBe('Провери')
+  })
+
+  it('returns EN translation after locale switch', () => {
+    setLocale('en')
+    const { result } = renderHook(() => useTranslation())
+    expect(result.current.t('hero.button')).toBe('Check')
+  })
+
+  it('returns key for missing translation', () => {
+    const { result } = renderHook(() => useTranslation())
+    expect(result.current.t('nonexistent.key')).toBe('nonexistent.key')
+  })
+
+  it('interpolates params', () => {
+    const { result } = renderHook(() => useTranslation())
+    expect(result.current.t('city.title', { city: 'София' })).toBe('Walk Score на София')
+  })
+})
+```
+
+- [ ] **Step 6: Write server function tests with mocks**
+
+Create `src/server/__tests__/score.test.ts`:
+
+```ts
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+
+// Mock Supabase
+const mockRpc = vi.fn()
+const mockInsert = vi.fn().mockReturnValue({ execute: vi.fn() })
+const mockFrom = vi.fn().mockReturnValue({ insert: mockInsert })
+
+vi.mock('../supabase', () => ({
+  getSupabase: () => ({
+    rpc: mockRpc,
+    from: mockFrom,
+  }),
+}))
+
+// Mock geocode
+vi.mock('../geocode', () => ({
+  geocodeAddress: vi.fn().mockResolvedValue({
+    lat: 42.6977,
+    lng: 23.3219,
+    displayName: 'Sofia Center, Sofia, Bulgaria',
+  }),
+}))
+
+// Import after mocks
+const { getScoreByCoords } = await import('../score')
+
+describe('getScoreByCoords', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('returns formatted score result', async () => {
+    mockRpc.mockResolvedValueOnce({
+      data: [{
+        walk_score: 87,
+        transit_score: 72,
+        bike_score: 45,
+        walk_label: "Walker's Paradise",
+        transit_label: 'Excellent Transit',
+        bike_label: 'Bikeable',
+        grocery: 95,
+        restaurant: 88,
+        shopping: 70,
+        errands: 92,
+        parks: 65,
+        education: 80,
+      }],
+      error: null,
+    })
+
+    const result = await getScoreByCoords({
+      data: { lat: 42.6977, lng: 23.3219 },
+    })
+
+    expect(result.walkScore).toBe(87)
+    expect(result.transitScore).toBe(72)
+    expect(result.bikeScore).toBe(45)
+    expect(result.components.grocery).toBe(95)
+    expect(result.address).toContain('42.6977')
+  })
+
+  it('throws on no data', async () => {
+    mockRpc.mockResolvedValueOnce({ data: [], error: null })
+
+    await expect(
+      getScoreByCoords({ data: { lat: 0, lng: 0 } })
+    ).rejects.toThrow('No data for this location')
+  })
+})
+```
+
+Create `src/server/__tests__/heatmap.test.ts`:
+
+```ts
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+
+const mockRpc = vi.fn()
+vi.mock('../supabase', () => ({
+  getSupabase: () => ({ rpc: mockRpc }),
+}))
+
+const { getHeatmapData } = await import('../heatmap')
+
+describe('getHeatmapData', () => {
+  beforeEach(() => { vi.clearAllMocks() })
+
+  it('returns GeoJSON FeatureCollection', async () => {
+    mockRpc.mockResolvedValueOnce({
+      data: [
+        {
+          walk_score: 80,
+          transit_score: 60,
+          bike_score: 40,
+          walk_label: 'Very Walkable',
+          geojson: '{"type":"Polygon","coordinates":[[[23.32,42.69],[23.33,42.69],[23.33,42.70],[23.32,42.70],[23.32,42.69]]]}',
+        },
+      ],
+      error: null,
+    })
+
+    const result = await getHeatmapData({
+      data: { minLng: 23.2, minLat: 42.6, maxLng: 23.4, maxLat: 42.7 },
+    })
+
+    expect(result.type).toBe('FeatureCollection')
+    expect(result.features).toHaveLength(1)
+    expect(result.features[0].properties.walkScore).toBe(80)
+  })
+
+  it('throws on supabase error', async () => {
+    mockRpc.mockResolvedValueOnce({
+      data: null,
+      error: { message: 'DB error' },
+    })
+
+    await expect(
+      getHeatmapData({
+        data: { minLng: 0, minLat: 0, maxLng: 1, maxLat: 1 },
+      })
+    ).rejects.toThrow('DB error')
+  })
+})
+```
+
+Create `src/server/__tests__/amenities.test.ts`:
+
+```ts
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+
+const mockRpc = vi.fn()
+vi.mock('../supabase', () => ({
+  getSupabase: () => ({ rpc: mockRpc }),
+}))
+
+const { getNearbyAmenities } = await import('../amenities')
+
+describe('getNearbyAmenities', () => {
+  beforeEach(() => { vi.clearAllMocks() })
+
+  it('returns formatted amenity list', async () => {
+    mockRpc.mockResolvedValueOnce({
+      data: [
+        { id: 1, category: 'grocery', name: 'Billa', name_bg: 'Билла', distance_m: 150.7, lng: 23.32, lat: 42.69 },
+        { id: 2, category: 'restaurant', name: 'Happy', name_bg: 'Хепи', distance_m: 250.3, lng: 23.33, lat: 42.70 },
+      ],
+      error: null,
+    })
+
+    const result = await getNearbyAmenities({
+      data: { lat: 42.6977, lng: 23.3219 },
+    })
+
+    expect(result).toHaveLength(2)
+    expect(result[0].name).toBe('Billa')
+    expect(result[0].distanceM).toBe(151) // rounded
+    expect(result[0].category).toBe('grocery')
+  })
+
+  it('returns empty array for no results', async () => {
+    mockRpc.mockResolvedValueOnce({ data: [], error: null })
+
+    const result = await getNearbyAmenities({
+      data: { lat: 0, lng: 0 },
+    })
+
+    expect(result).toEqual([])
+  })
+})
+```
+
+- [ ] **Step 7: Write component tests**
+
+Create `src/components/__tests__/ScoreGauge.test.tsx`:
+
+```tsx
+import { describe, it, expect } from 'vitest'
+import { render, screen } from '@testing-library/react'
+import { ScoreGauge } from '../ScoreGauge'
+
+describe('ScoreGauge', () => {
+  it('renders the score number', () => {
+    render(<ScoreGauge score={87} type="walk" />)
+    expect(screen.getByText('87')).toBeInTheDocument()
+  })
+
+  it('renders Walk Score label', () => {
+    render(<ScoreGauge score={87} type="walk" />)
+    expect(screen.getByText('Walk Score')).toBeInTheDocument()
+  })
+
+  it('renders Transit Score label', () => {
+    render(<ScoreGauge score={72} type="transit" />)
+    expect(screen.getByText('Transit Score')).toBeInTheDocument()
+  })
+
+  it('renders Bike Score label', () => {
+    render(<ScoreGauge score={45} type="bike" />)
+    expect(screen.getByText('Bike Score')).toBeInTheDocument()
+  })
+
+  it('rounds the score', () => {
+    render(<ScoreGauge score={87.6} type="walk" />)
+    expect(screen.getByText('88')).toBeInTheDocument()
+  })
+
+  it('renders SVG with arcs', () => {
+    const { container } = render(<ScoreGauge score={50} type="walk" />)
+    const circles = container.querySelectorAll('circle')
+    expect(circles.length).toBe(2) // bg arc + score arc
+  })
+})
+```
+
+Create `src/components/__tests__/CategoryBreakdown.test.tsx`:
+
+```tsx
+import { describe, it, expect } from 'vitest'
+import { render, screen } from '@testing-library/react'
+import { CategoryBreakdown } from '../CategoryBreakdown'
+
+const mockComponents = {
+  grocery: 95,
+  restaurant: 88,
+  shopping: 70,
+  errands: 92,
+  parks: 65,
+  education: 80,
+}
+
+describe('CategoryBreakdown', () => {
+  it('renders all 6 categories', () => {
+    render(<CategoryBreakdown components={mockComponents} />)
+    expect(screen.getByText('95')).toBeInTheDocument()
+    expect(screen.getByText('88')).toBeInTheDocument()
+    expect(screen.getByText('70')).toBeInTheDocument()
+    expect(screen.getByText('92')).toBeInTheDocument()
+    expect(screen.getByText('65')).toBeInTheDocument()
+    expect(screen.getByText('80')).toBeInTheDocument()
+  })
+
+  it('renders category labels in BG by default', () => {
+    render(<CategoryBreakdown components={mockComponents} />)
+    expect(screen.getByText('Хранителни')).toBeInTheDocument()
+    expect(screen.getByText('Ресторанти')).toBeInTheDocument()
+  })
+
+  it('renders progress bars', () => {
+    const { container } = render(<CategoryBreakdown components={mockComponents} />)
+    const bars = container.querySelectorAll('[style*="width"]')
+    expect(bars.length).toBeGreaterThanOrEqual(6)
+  })
+})
+```
+
+Create `src/components/__tests__/LayerSwitcher.test.tsx`:
+
+```tsx
+import { describe, it, expect, vi } from 'vitest'
+import { render, screen, fireEvent } from '@testing-library/react'
+import { LayerSwitcher } from '../LayerSwitcher'
+
+describe('LayerSwitcher', () => {
+  it('renders 3 layer buttons', () => {
+    render(<LayerSwitcher active="walk" onChange={() => {}} />)
+    const buttons = screen.getAllByRole('button')
+    expect(buttons).toHaveLength(3)
+  })
+
+  it('highlights active layer', () => {
+    render(<LayerSwitcher active="transit" onChange={() => {}} />)
+    const transitBtn = screen.getByText('Транспорт')
+    expect(transitBtn.className).toContain('bg-emerald-600')
+  })
+
+  it('calls onChange on click', () => {
+    const onChange = vi.fn()
+    render(<LayerSwitcher active="walk" onChange={onChange} />)
+    fireEvent.click(screen.getByText('Транспорт'))
+    expect(onChange).toHaveBeenCalledWith('transit')
+  })
+})
+```
+
+Create `src/components/__tests__/ShareEmbed.test.tsx`:
+
+```tsx
+import { describe, it, expect, vi } from 'vitest'
+import { render, screen, fireEvent } from '@testing-library/react'
+import { ShareEmbed } from '../ShareEmbed'
+
+describe('ShareEmbed', () => {
+  it('renders copy link and embed buttons', () => {
+    render(<ShareEmbed lat={42.69} lng={23.32} />)
+    expect(screen.getByText('Копирай линк')).toBeInTheDocument()
+    expect(screen.getByText('Embed код')).toBeInTheDocument()
+  })
+
+  it('copies link to clipboard on click', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined)
+    Object.assign(navigator, { clipboard: { writeText } })
+
+    render(<ShareEmbed lat={42.69} lng={23.32} />)
+    fireEvent.click(screen.getByText('Копирай линк'))
+
+    expect(writeText).toHaveBeenCalledWith(
+      expect.stringContaining('walkscore.bg/score')
+    )
+  })
+})
+```
+
+- [ ] **Step 8: Run all tests with coverage**
+
+```bash
+npm run test:coverage
+```
+
+Expected: All tests pass, coverage >= 90% for statements/lines/functions, >= 85% for branches.
+
+- [ ] **Step 9: Commit**
+
+```bash
+git add vitest.config.ts src/test/ src/lib/__tests__/ src/server/__tests__/ src/components/__tests__/ package.json
+git commit -m "test: add Vitest unit tests with 90%+ coverage target"
+```
+
+---
+
+### Task 25: Playwright E2E Tests
+
+**Files:**
+- Create: `playwright.config.ts`, `e2e/home.spec.ts`, `e2e/score.spec.ts`, `e2e/map.spec.ts`, `e2e/compare.spec.ts`, `e2e/i18n.spec.ts`, `e2e/mobile.spec.ts`
+
+- [ ] **Step 1: Install Playwright**
+
+```bash
+npm install -D @playwright/test
+npx playwright install chromium
+```
+
+- [ ] **Step 2: Configure Playwright**
+
+Create `playwright.config.ts`:
+
+```ts
+import { defineConfig, devices } from '@playwright/test'
+
+export default defineConfig({
+  testDir: './e2e',
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  workers: process.env.CI ? 1 : undefined,
+  reporter: 'html',
+  use: {
+    baseURL: 'http://localhost:3000',
+    trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+  },
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    { name: 'mobile', use: { ...devices['iPhone 14'] } },
+  ],
+  webServer: {
+    command: 'npm run dev',
+    url: 'http://localhost:3000',
+    reuseExistingServer: !process.env.CI,
+  },
+})
+```
+
+Add script to `package.json`:
+
+```json
+{
+  "scripts": {
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
+  }
+}
+```
+
+- [ ] **Step 3: Write home page e2e test**
+
+Create `e2e/home.spec.ts`:
+
+```ts
+import { test, expect } from '@playwright/test'
+
+test.describe('Home Page', () => {
+  test('shows hero with search bar', async ({ page }) => {
+    await page.goto('/')
+    await expect(page.locator('h1')).toContainText('Walk Score')
+    await expect(page.locator('input[type="text"]')).toBeVisible()
+    await expect(page.getByText('Провери')).toBeVisible()
+  })
+
+  test('shows how it works section', async ({ page }) => {
+    await page.goto('/')
+    await expect(page.getByText('Как работи?')).toBeVisible()
+  })
+
+  test('quick links populate search', async ({ page }) => {
+    await page.goto('/')
+    await page.getByText('ул. Граф Игнатиев').click()
+    const input = page.locator('input[type="text"]')
+    await expect(input).toHaveValue(/Граф Игнатиев/)
+  })
+
+  test('search navigates to score page', async ({ page }) => {
+    await page.goto('/')
+    await page.fill('input[type="text"]', 'ул. Витошка 42, София')
+    await page.click('button:has-text("Провери")')
+    await expect(page).toHaveURL(/\/score/)
+  })
+
+  test('header navigation works', async ({ page }) => {
+    await page.goto('/')
+    await page.click('text=Карта')
+    await expect(page).toHaveURL(/\/map/)
+  })
+})
+```
+
+- [ ] **Step 4: Write score page e2e test**
+
+Create `e2e/score.spec.ts`:
+
+```ts
+import { test, expect } from '@playwright/test'
+
+test.describe('Score Page', () => {
+  test('displays scores for a valid address', async ({ page }) => {
+    await page.goto('/score?lat=42.6977&lng=23.3219')
+    
+    // Wait for data to load
+    await page.waitForSelector('[data-testid="score-gauge"], text=/\\d+/', {
+      timeout: 10000,
+    })
+
+    // Should show 3 score sections
+    await expect(page.getByText('Walk Score')).toBeVisible()
+    await expect(page.getByText('Transit Score')).toBeVisible()
+    await expect(page.getByText('Bike Score')).toBeVisible()
+  })
+
+  test('shows category breakdown', async ({ page }) => {
+    await page.goto('/score?lat=42.6977&lng=23.3219')
+    await page.waitForSelector('text=Разбивка по категории', { timeout: 10000 })
+    
+    await expect(page.getByText('Хранителни')).toBeVisible()
+    await expect(page.getByText('Ресторанти')).toBeVisible()
+  })
+
+  test('shows error for invalid location', async ({ page }) => {
+    await page.goto('/score?lat=0&lng=0')
+    await page.waitForSelector('text=/Няма данни|No data/', { timeout: 10000 })
+  })
+
+  test('back to search link works', async ({ page }) => {
+    await page.goto('/score?lat=42.6977&lng=23.3219')
+    await page.waitForSelector('text=← Ново търсене', { timeout: 10000 })
+    await page.click('text=← Ново търсене')
+    await expect(page).toHaveURL('/')
+  })
+})
+```
+
+- [ ] **Step 5: Write map page e2e test**
+
+Create `e2e/map.spec.ts`:
+
+```ts
+import { test, expect } from '@playwright/test'
+
+test.describe('Map Page', () => {
+  test('loads full-screen map', async ({ page }) => {
+    await page.goto('/map')
+    // MapLibre canvas should be present
+    await expect(page.locator('canvas')).toBeVisible({ timeout: 10000 })
+  })
+
+  test('layer switcher toggles', async ({ page }) => {
+    await page.goto('/map')
+    await page.waitForSelector('canvas', { timeout: 10000 })
+
+    // Click transit layer
+    await page.click('button:has-text("Транспорт")')
+    const transitBtn = page.locator('button:has-text("Транспорт")')
+    await expect(transitBtn).toHaveClass(/bg-emerald/)
+
+    // Click bike layer
+    await page.click('button:has-text("Велосипеден")')
+    const bikeBtn = page.locator('button:has-text("Велосипеден")')
+    await expect(bikeBtn).toHaveClass(/bg-emerald/)
+  })
+
+  test('has search bar overlay', async ({ page }) => {
+    await page.goto('/map')
+    await expect(page.locator('input[type="text"]')).toBeVisible()
+  })
+
+  test('has score legend', async ({ page }) => {
+    await page.goto('/map')
+    await expect(page.getByText('90+')).toBeVisible()
+  })
+})
+```
+
+- [ ] **Step 6: Write i18n e2e test**
+
+Create `e2e/i18n.spec.ts`:
+
+```ts
+import { test, expect } from '@playwright/test'
+
+test.describe('Internationalization', () => {
+  test('defaults to Bulgarian', async ({ page }) => {
+    await page.goto('/')
+    await expect(page.getByText('Провери')).toBeVisible()
+    await expect(page.getByText('Как работи?')).toBeVisible()
+  })
+
+  test('language toggle switches to English', async ({ page }) => {
+    await page.goto('/')
+    await page.click('text=English')
+    await expect(page.getByText('Check')).toBeVisible()
+    await expect(page.getByText('How it works?')).toBeVisible()
+  })
+
+  test('/en/ routes load in English', async ({ page }) => {
+    await page.goto('/en/')
+    await expect(page.getByText('Check')).toBeVisible()
+  })
+
+  test('about page respects locale', async ({ page }) => {
+    await page.goto('/about')
+    await expect(page.getByText('Как работи WalkScore.bg?')).toBeVisible()
+
+    await page.goto('/en/about')
+    await expect(page.getByText('How WalkScore.bg Works')).toBeVisible()
+  })
+})
+```
+
+- [ ] **Step 7: Write mobile responsiveness e2e test**
+
+Create `e2e/mobile.spec.ts`:
+
+```ts
+import { test, expect } from '@playwright/test'
+
+test.describe('Mobile Responsiveness', () => {
+  test.use({ viewport: { width: 375, height: 812 } }) // iPhone size
+
+  test('home page is usable on mobile', async ({ page }) => {
+    await page.goto('/')
+    await expect(page.locator('h1')).toBeVisible()
+    await expect(page.locator('input[type="text"]')).toBeVisible()
+    
+    // Search bar should be full-width
+    const input = page.locator('input[type="text"]')
+    const box = await input.boundingBox()
+    expect(box!.width).toBeGreaterThan(300)
+  })
+
+  test('score page stacks vertically on mobile', async ({ page }) => {
+    await page.goto('/score?lat=42.6977&lng=23.3219')
+    await page.waitForSelector('text=Walk Score', { timeout: 10000 })
+    
+    // Map and scores should be stacked, not side-by-side
+    const mapContainer = page.locator('.h-\\[500px\\]').first()
+    if (await mapContainer.isVisible()) {
+      const box = await mapContainer.boundingBox()
+      expect(box!.width).toBeGreaterThan(340) // nearly full-width
+    }
+  })
+
+  test('compare page inputs stack on mobile', async ({ page }) => {
+    await page.goto('/compare')
+    const inputs = page.locator('input[type="text"]')
+    await expect(inputs).toHaveCount(2)
+  })
+})
+```
+
+- [ ] **Step 8: Run e2e tests**
+
+```bash
+npm run test:e2e
+```
+
+Expected: All tests pass in both chromium and mobile projects.
+
+- [ ] **Step 9: Commit**
+
+```bash
+git add playwright.config.ts e2e/ package.json
+git commit -m "test: add Playwright e2e tests for all pages and mobile"
+```
+
+---
+
 ## Post-Launch Checklist
 
 - [ ] Run the Python pipeline for Sofia: `python -m pipeline.run`
