@@ -1,39 +1,44 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { HeadContent, Scripts, createRootRoute, useRouterState } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  createRootRoute,
+  HeadContent,
+  Scripts,
+  useRouterState,
+} from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 
-import { Footer } from '../components/Footer'
-import { Header } from '../components/Header'
-import { LocaleProvider, localeFromPath } from '../lib/i18n'
-import appCss from '../styles/globals.css?url'
+import { Footer } from "../components/Footer";
+import { Header } from "../components/Header";
+import { LocaleProvider, localeFromPath } from "../lib/i18n";
+import appCss from "../styles/globals.css?url";
 
 export const Route = createRootRoute({
   head: () => ({
     meta: [
-      { charSet: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: 'WalkScore.bg' },
+      { charSet: "utf-8" },
+      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { title: "WalkScore.bg" },
       {
-        name: 'description',
-        content: 'Walk Score, Transit Score, Bike Score for Sofia, Bulgaria',
+        name: "description",
+        content: "Walk Score, Transit Score, Bike Score for Sofia, Bulgaria",
       },
     ],
-    links: [{ rel: 'stylesheet', href: appCss }],
+    links: [{ rel: "stylesheet", href: appCss }],
   }),
   shellComponent: RootDocument,
-})
+});
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
-  })
-  const locale = localeFromPath(pathname)
-  const [queryClient] = useState(() => new QueryClient())
-  const [hydrated, setHydrated] = useState(false)
+  });
+  const locale = localeFromPath(pathname);
+  const [queryClient] = useState(() => new QueryClient());
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    setHydrated(true)
-  }, [])
+    setHydrated(true);
+  }, []);
 
   return (
     <html lang={locale}>
@@ -42,7 +47,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body
         className="min-h-screen bg-stone-50 text-stone-900 antialiased"
-        data-hydrated={hydrated ? 'true' : 'false'}
+        data-hydrated={hydrated ? "true" : "false"}
       >
         <LocaleProvider locale={locale}>
           <QueryClientProvider client={queryClient}>
@@ -56,5 +61,5 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <Scripts />
       </body>
     </html>
-  )
+  );
 }

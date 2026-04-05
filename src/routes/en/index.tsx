@@ -1,11 +1,11 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from "@tanstack/react-router";
 
-import { setLocale } from '../../lib/i18n'
-import { HomePage } from '../index'
+import { setLocale } from "../../lib/i18n";
+import { HomePage } from "../index";
 
-export const Route = createFileRoute('/en/')({
+export const Route = createFileRoute("/en/")({
   beforeLoad: () => {
-    setLocale('en')
+    setLocale("en");
   },
   component: HomePage,
-})
+});

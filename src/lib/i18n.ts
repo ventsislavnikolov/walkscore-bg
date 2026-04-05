@@ -1,77 +1,77 @@
-import { createContext, createElement, useContext } from 'react'
+import { createContext, createElement, useContext } from "react";
 
-import bg from '../locales/bg.json'
-import en from '../locales/en.json'
-import type { Locale } from './types'
+import bg from "../locales/bg.json";
+import en from "../locales/en.json";
+import type { Locale } from "./types";
 
-const translations = { bg, en } as const
+const translations = { bg, en } as const;
 
-const LocaleContext = createContext<Locale>('bg')
+const LocaleContext = createContext<Locale>("bg");
 
 export function setLocale(locale: Locale) {
-  if (typeof window === 'undefined') return
+  if (typeof window === "undefined") return;
 
-  const path = window.location.pathname
-  const search = window.location.search
-  const hash = window.location.hash
+  const path = window.location.pathname;
+  const search = window.location.search;
+  const hash = window.location.hash;
   const nextPath =
-    locale === 'en'
-      ? path.startsWith('/en')
+    locale === "en"
+      ? path.startsWith("/en")
         ? path
-        : `/en${path === '/' ? '' : path}`
-      : path.startsWith('/en')
-        ? path.replace(/^\/en/, '') || '/'
-        : path
+        : `/en${path === "/" ? "" : path}`
+      : path.startsWith("/en")
+        ? path.replace(/^\/en/, "") || "/"
+        : path;
 
-  window.location.assign(`${nextPath}${search}${hash}`)
+  window.location.assign(`${nextPath}${search}${hash}`);
 }
 
 export function localeFromPath(pathname: string): Locale {
-  return pathname === '/en' || pathname.startsWith('/en/') ? 'en' : 'bg'
+  return pathname === "/en" || pathname.startsWith("/en/") ? "en" : "bg";
 }
 
 export function LocaleProvider({
   children,
   locale,
 }: {
-  children: React.ReactNode
-  locale: Locale
+  children: React.ReactNode;
+  locale: Locale;
 }) {
-  return createElement(LocaleContext.Provider, { value: locale }, children)
+  return createElement(LocaleContext.Provider, { value: locale }, children);
 }
 
 export function useLocale(): Locale {
-  return useContext(LocaleContext)
+  return useContext(LocaleContext);
 }
 
 export function useTranslation() {
-  const locale = useLocale()
+  const locale = useLocale();
 
   function t(key: string, params?: Record<string, string>): string {
-    const keys = key.split('.')
-    let value: unknown = translations[locale]
+    const keys = key.split(".");
+    let value: unknown = translations[locale];
 
     for (const segment of keys) {
-      if (value && typeof value === 'object' && segment in value) {
-        value = (value as Record<string, unknown>)[segment]
+      if (value && typeof value === "object" && segment in value) {
+        value = (value as Record<string, unknown>)[segment];
       } else {
-        return key
+        return key;
       }
     }
 
-    if (typeof value !== 'string') {
-      return key
+    if (typeof value !== "string") {
+      return key;
     }
 
     if (!params) {
-      return value
+      return value;
     }
 
     return Object.entries(params).reduce(
       (acc, [param, replacement]) => acc.replace(`{${param}}`, replacement),
-      value,
-    )
+      value
+    );
   }
 
-  return { t, locale }
+  return { t, locale };
 }

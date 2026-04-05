@@ -1,28 +1,28 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { useState } from 'react'
+import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 
-import { HeatmapMap } from '../components/HeatmapMap'
-import { LayerSwitcher } from '../components/LayerSwitcher'
-import { ScoreLegend } from '../components/ScoreLegend'
-import { SearchBar } from '../components/SearchBar'
-import { useTranslation } from '../lib/i18n'
-import type { ScoreType } from '../lib/types'
+import { HeatmapMap } from "../components/HeatmapMap";
+import { LayerSwitcher } from "../components/LayerSwitcher";
+import { ScoreLegend } from "../components/ScoreLegend";
+import { SearchBar } from "../components/SearchBar";
+import { useTranslation } from "../lib/i18n";
+import type { ScoreType } from "../lib/types";
 
-export const Route = createFileRoute('/map')({
+export const Route = createFileRoute("/map")({
   component: MapPage,
-})
+});
 
 export function MapPage() {
-  const { t } = useTranslation()
-  const [scoreType, setScoreType] = useState<ScoreType>('walk')
+  const { t } = useTranslation();
+  const [scoreType, setScoreType] = useState<ScoreType>("walk");
 
   return (
     <main className="relative h-[calc(100vh-3.5rem)] overflow-hidden bg-stone-950">
       <HeatmapMap
         center={[23.3219, 42.6977]}
-        zoom={12}
-        scoreType={scoreType}
         className="h-full w-full"
+        scoreType={scoreType}
+        zoom={12}
       />
 
       <div className="pointer-events-none absolute inset-x-0 top-0 flex justify-center px-4 pt-4">
@@ -30,11 +30,11 @@ export function MapPage() {
           <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
             <div className="space-y-3">
               <div>
-                <p className="text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-emerald-700">
+                <p className="font-semibold text-[0.65rem] text-emerald-700 uppercase tracking-[0.28em]">
                   Sofia Atlas
                 </p>
-                <h1 className="text-xl font-semibold text-stone-900 md:text-2xl">
-                  {t('map.title')}
+                <h1 className="font-semibold text-stone-900 text-xl md:text-2xl">
+                  {t("map.title")}
                 </h1>
               </div>
               <SearchBar size="md" />
@@ -54,5 +54,5 @@ export function MapPage() {
         <ScoreLegend />
       </div>
     </main>
-  )
+  );
 }

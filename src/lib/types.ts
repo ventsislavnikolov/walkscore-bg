@@ -1,54 +1,54 @@
 export interface ScoreComponents {
-  grocery: number
-  restaurant: number
-  shopping: number
-  errands: number
-  parks: number
-  education: number
+  education: number;
+  errands: number;
+  grocery: number;
+  parks: number;
+  restaurant: number;
+  shopping: number;
 }
 
 export interface ScoreResult {
-  address: string
-  lat: number
-  lng: number
-  walkScore: number
-  transitScore: number
-  bikeScore: number
-  walkLabel: string
-  transitLabel: string
-  bikeLabel: string
-  components: ScoreComponents
+  address: string;
+  bikeLabel: string;
+  bikeScore: number;
+  components: ScoreComponents;
+  lat: number;
+  lng: number;
+  transitLabel: string;
+  transitScore: number;
+  walkLabel: string;
+  walkScore: number;
 }
 
 export interface Amenity {
-  id: number
-  category: string
-  name: string
-  nameBg: string
-  distanceM: number
-  lng: number
-  lat: number
+  category: string;
+  distanceM: number;
+  id: number;
+  lat: number;
+  lng: number;
+  name: string;
+  nameBg: string;
 }
 
 export interface HeatmapCell {
-  id: number
-  walkScore: number
-  transitScore: number
-  bikeScore: number
-  walkLabel: string
-  geojson: string
+  bikeScore: number;
+  geojson: string;
+  id: number;
+  transitScore: number;
+  walkLabel: string;
+  walkScore: number;
 }
 
 export interface CityStats {
-  slug: string
-  nameBg: string
-  nameEn: string
-  centerLat: number
-  centerLng: number
-  avgWalkScore: number
-  avgTransitScore: number
-  avgBikeScore: number
+  avgBikeScore: number;
+  avgTransitScore: number;
+  avgWalkScore: number;
+  centerLat: number;
+  centerLng: number;
+  nameBg: string;
+  nameEn: string;
+  slug: string;
 }
 
-export type ScoreType = 'walk' | 'transit' | 'bike'
-export type Locale = 'bg' | 'en'
+export type ScoreType = "walk" | "transit" | "bike";
+export type Locale = "bg" | "en";

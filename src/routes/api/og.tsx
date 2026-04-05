@@ -1,20 +1,20 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from "@tanstack/react-router";
 
 function escapeXml(value: string) {
   return value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&apos;')
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&apos;");
 }
 
 function buildOgSvg(requestUrl: string) {
-  const url = new URL(requestUrl)
-  const walkScore = escapeXml(url.searchParams.get('walk') || '0')
-  const transitScore = escapeXml(url.searchParams.get('transit') || '0')
-  const bikeScore = escapeXml(url.searchParams.get('bike') || '0')
-  const address = escapeXml(url.searchParams.get('address') || 'Sofia')
+  const url = new URL(requestUrl);
+  const walkScore = escapeXml(url.searchParams.get("walk") || "0");
+  const transitScore = escapeXml(url.searchParams.get("transit") || "0");
+  const bikeScore = escapeXml(url.searchParams.get("bike") || "0");
+  const address = escapeXml(url.searchParams.get("address") || "Sofia");
 
   return `
 <svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
@@ -38,26 +38,26 @@ function buildOgSvg(requestUrl: string) {
   </text>
   <text x="860" y="438" font-size="20" fill="#57534e" font-family="system-ui, sans-serif" text-anchor="middle">Bike Score</text>
   <text x="60" y="586" font-size="20" fill="#a8a29e" font-family="system-ui, sans-serif">walkscore.bg</text>
-</svg>`.trim()
+</svg>`.trim();
 }
 
-export const Route = createFileRoute('/api/og')({
+export const Route = createFileRoute("/api/og")({
   server: {
     handlers: {
       GET: async ({ request }) => {
         return new Response(buildOgSvg(request.url), {
           headers: {
-            'Content-Type': 'image/svg+xml; charset=utf-8',
+            "Content-Type": "image/svg+xml; charset=utf-8",
           },
-        })
+        });
       },
       HEAD: async () => {
         return new Response(null, {
           headers: {
-            'Content-Type': 'image/svg+xml; charset=utf-8',
+            "Content-Type": "image/svg+xml; charset=utf-8",
           },
-        })
+        });
       },
     },
   },
-})
+});

@@ -1,8 +1,8 @@
-import { render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
 
-import { LocaleProvider } from '../../lib/i18n'
-import { CategoryBreakdown } from '../CategoryBreakdown'
+import { LocaleProvider } from "../../lib/i18n";
+import { CategoryBreakdown } from "../CategoryBreakdown";
 
 const components = {
   grocery: 95,
@@ -11,29 +11,29 @@ const components = {
   errands: 92,
   parks: 65,
   education: 80,
-}
+};
 
-describe('CategoryBreakdown', () => {
-  it('renders Bulgarian category labels by default', () => {
+describe("CategoryBreakdown", () => {
+  it("renders Bulgarian category labels by default", () => {
     render(
       <LocaleProvider locale="bg">
         <CategoryBreakdown components={components} />
-      </LocaleProvider>,
-    )
+      </LocaleProvider>
+    );
 
-    expect(screen.getByText('Хранителни')).toBeInTheDocument()
-    expect(screen.getByText('Ресторанти')).toBeInTheDocument()
-    expect(screen.getByText('Образование')).toBeInTheDocument()
-  })
+    expect(screen.getByText("Хранителни")).toBeInTheDocument();
+    expect(screen.getByText("Ресторанти")).toBeInTheDocument();
+    expect(screen.getByText("Образование")).toBeInTheDocument();
+  });
 
-  it('renders English labels when locale changes', () => {
+  it("renders English labels when locale changes", () => {
     render(
       <LocaleProvider locale="en">
         <CategoryBreakdown components={components} />
-      </LocaleProvider>,
-    )
+      </LocaleProvider>
+    );
 
-    expect(screen.getByText('Grocery')).toBeInTheDocument()
-    expect(screen.getByText('Education')).toBeInTheDocument()
-  })
-})
+    expect(screen.getByText("Grocery")).toBeInTheDocument();
+    expect(screen.getByText("Education")).toBeInTheDocument();
+  });
+});
