@@ -21,7 +21,7 @@ const config = defineConfig({
     ssr: {
       build: {
         rollupOptions: {
-          input: './src/server.ts',
+          input: './server.ts',
         },
       },
     },

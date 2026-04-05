@@ -193,5 +193,5 @@ export function HeatmapMap({
     map.flyTo({ center: markerPosition, zoom: Math.max(map.getZoom(), 15), duration: 900 })
   }, [markerPosition])
 
-  return <div ref={containerRef} className={className} />
+  return <div ref={containerRef} className={className} data-testid="heatmap-map" />
 }

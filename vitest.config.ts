@@ -20,7 +20,7 @@ export default defineConfig({
         'src/**/*.d.ts',
         'src/routeTree.gen.ts',
         'src/router.tsx',
-        'src/server.ts',
+      'server.ts',
         'src/server/supabase.ts',
         'src/components/HeatmapMap.tsx',
         'src/lib/types.ts',

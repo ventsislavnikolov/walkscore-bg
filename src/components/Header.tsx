@@ -14,22 +14,6 @@ export function Header() {
   function toggleLocale() {
     const nextLocale: Locale = locale === 'bg' ? 'en' : 'bg'
     setLocale(nextLocale)
-
-    if (typeof window === 'undefined') return
-
-    const path = window.location.pathname
-    const search = window.location.search
-    const hash = window.location.hash
-    const nextPath =
-      nextLocale === 'en'
-        ? path.startsWith('/en')
-          ? path
-          : `/en${path}`
-        : path.startsWith('/en')
-          ? path.replace(/^\/en/, '') || '/'
-          : path
-
-    window.history.replaceState(null, '', `${nextPath}${search}${hash}`)
   }
 
   return (

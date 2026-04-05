@@ -1,6 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
 
 import type { Amenity } from '../lib/types'
+import { getE2EAmenitiesFixture, getE2EScoreFixtureByCoords, isE2EMockMode } from './e2e-fixtures'
 import { getSupabase } from './supabase'
 
 interface NearbyAmenitiesParams {
@@ -12,6 +13,10 @@ interface NearbyAmenitiesParams {
 export async function getNearbyAmenitiesInternal(
   data: NearbyAmenitiesParams,
 ): Promise<Amenity[]> {
+  if (isE2EMockMode()) {
+    return getE2EAmenitiesFixture(getE2EScoreFixtureByCoords(data.lat, data.lng))
+  }
+
   const supabase = getSupabase()
 
   const { data: amenities, error } = await supabase.rpc('get_nearby_amenities', {

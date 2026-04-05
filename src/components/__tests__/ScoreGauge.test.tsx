@@ -1,13 +1,16 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 
-import { setLocale } from '../../lib/i18n'
+import { LocaleProvider } from '../../lib/i18n'
 import { ScoreGauge } from '../ScoreGauge'
 
 describe('ScoreGauge', () => {
   it('renders the rounded score and english labels', () => {
-    setLocale('en')
-    const { container } = render(<ScoreGauge score={87.6} type="walk" />)
+    const { container } = render(
+      <LocaleProvider locale="en">
+        <ScoreGauge score={87.6} type="walk" />
+      </LocaleProvider>,
+    )
 
     expect(screen.getByText('88')).toBeInTheDocument()
     expect(screen.getByText('Walk Score')).toBeInTheDocument()
@@ -16,8 +19,11 @@ describe('ScoreGauge', () => {
   })
 
   it('renders Bulgarian status text for smaller sizes', () => {
-    setLocale('bg')
-    render(<ScoreGauge score={55} type="transit" size="md" />)
+    render(
+      <LocaleProvider locale="bg">
+        <ScoreGauge score={55} type="transit" size="md" />
+      </LocaleProvider>,
+    )
 
     expect(screen.getByText('Transit Score')).toBeInTheDocument()
     expect(screen.getByText('Добър транспорт')).toBeInTheDocument()

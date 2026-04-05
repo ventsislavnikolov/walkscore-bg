@@ -47,6 +47,7 @@ export function SearchBar({ size = 'lg', defaultValue = '', onSearch }: SearchBa
           className={`absolute left-4 top-1/2 -translate-y-1/2 text-stone-400 ${isLarge ? '' : 'h-4 w-4'}`}
         />
         <input
+          data-testid="search-input"
           type="text"
           value={address}
           onChange={(event) => setAddress(event.target.value)}
@@ -58,6 +59,7 @@ export function SearchBar({ size = 'lg', defaultValue = '', onSearch }: SearchBa
           }`}
         />
         <button
+          data-testid="search-submit"
           type="submit"
           disabled={loading}
           className={`absolute right-2 top-1/2 -translate-y-1/2 rounded-xl bg-emerald-600 font-medium text-white transition-colors hover:bg-emerald-700 disabled:opacity-50 ${

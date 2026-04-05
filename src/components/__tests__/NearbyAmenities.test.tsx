@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
-import { setLocale } from '../../lib/i18n'
+import { LocaleProvider } from '../../lib/i18n'
 import { NearbyAmenities } from '../NearbyAmenities'
 
 const amenities = [
@@ -11,8 +11,11 @@ const amenities = [
 
 describe('NearbyAmenities', () => {
   it('renders localized category groups', () => {
-    setLocale('bg')
-    render(<NearbyAmenities amenities={amenities} />)
+    render(
+      <LocaleProvider locale="bg">
+        <NearbyAmenities amenities={amenities} />
+      </LocaleProvider>,
+    )
 
     expect(screen.getByText('Наблизо')).toBeInTheDocument()
     expect(screen.getByText('Хранителни')).toBeInTheDocument()
@@ -20,9 +23,12 @@ describe('NearbyAmenities', () => {
   })
 
   it('forwards selection callbacks', () => {
-    setLocale('en')
     const onSelect = vi.fn()
-    render(<NearbyAmenities amenities={amenities} onSelect={onSelect} />)
+    render(
+      <LocaleProvider locale="en">
+        <NearbyAmenities amenities={amenities} onSelect={onSelect} />
+      </LocaleProvider>,
+    )
 
     fireEvent.click(screen.getByRole('button', { name: /Billa/i }))
     expect(onSelect).toHaveBeenCalledWith(amenities[0])

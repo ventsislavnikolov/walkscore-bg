@@ -156,6 +156,7 @@ function AddressInput({ value, placeholder, onChange }: AddressInputProps) {
         className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-stone-400"
       />
       <input
+        data-testid={placeholder}
         type="text"
         value={value}
         onChange={(event) => onChange(event.target.value)}

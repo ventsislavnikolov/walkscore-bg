@@ -19,3 +19,6 @@ __unconfig*
 dist-ssr
 todos.json
 *.local
+coverage/
+test-results/
+playwright-report/

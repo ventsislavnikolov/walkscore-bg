@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 
-import { setLocale } from '../../lib/i18n'
+import { LocaleProvider } from '../../lib/i18n'
 import { CategoryBreakdown } from '../CategoryBreakdown'
 
 const components = {
@@ -15,8 +15,11 @@ const components = {
 
 describe('CategoryBreakdown', () => {
   it('renders Bulgarian category labels by default', () => {
-    setLocale('bg')
-    render(<CategoryBreakdown components={components} />)
+    render(
+      <LocaleProvider locale="bg">
+        <CategoryBreakdown components={components} />
+      </LocaleProvider>,
+    )
 
     expect(screen.getByText('Хранителни')).toBeInTheDocument()
     expect(screen.getByText('Ресторанти')).toBeInTheDocument()
@@ -24,8 +27,11 @@ describe('CategoryBreakdown', () => {
   })
 
   it('renders English labels when locale changes', () => {
-    setLocale('en')
-    render(<CategoryBreakdown components={components} />)
+    render(
+      <LocaleProvider locale="en">
+        <CategoryBreakdown components={components} />
+      </LocaleProvider>,
+    )
 
     expect(screen.getByText('Grocery')).toBeInTheDocument()
     expect(screen.getByText('Education')).toBeInTheDocument()

@@ -1,6 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
 
 import type { ScoreResult } from '../lib/types'
+import { getE2EScoreFixtureByAddress, getE2EScoreFixtureByCoords, isE2EMockMode } from './e2e-fixtures'
 import { geocodeAddressInternal } from './geocode'
 import { getSupabase } from './supabase'
 
@@ -11,6 +12,10 @@ interface ScoreParams {
 }
 
 export async function getScoreByCoordsInternal(data: ScoreParams): Promise<ScoreResult> {
+  if (isE2EMockMode()) {
+    return getE2EScoreFixtureByCoords(data.lat, data.lng)
+  }
+
   const supabase = getSupabase()
 
   const { data: scores, error } = await supabase.rpc('get_scores', {
@@ -53,6 +58,10 @@ export async function getScoreByCoordsInternal(data: ScoreParams): Promise<Score
 }
 
 export async function getScoreByAddressInternal(address: string) {
+  if (isE2EMockMode()) {
+    return getE2EScoreFixtureByAddress(address)
+  }
+
   const geocoded = await geocodeAddressInternal(address)
   return getScoreByCoordsInternal({
     lat: geocoded.lat,
