@@ -10,13 +10,27 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ScoreRouteImport } from './routes/score'
+import { Route as MapRouteImport } from './routes/map'
+import { Route as CompareRouteImport } from './routes/compare'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as EnIndexRouteImport } from './routes/en/index'
 import { Route as EnScoreRouteImport } from './routes/en/score'
+import { Route as EnMapRouteImport } from './routes/en/map'
+import { Route as EnCompareRouteImport } from './routes/en/compare'
 
 const ScoreRoute = ScoreRouteImport.update({
   id: '/score',
   path: '/score',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MapRoute = MapRouteImport.update({
+  id: '/map',
+  path: '/map',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompareRoute = CompareRouteImport.update({
+  id: '/compare',
+  path: '/compare',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -34,37 +48,88 @@ const EnScoreRoute = EnScoreRouteImport.update({
   path: '/en/score',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EnMapRoute = EnMapRouteImport.update({
+  id: '/en/map',
+  path: '/en/map',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EnCompareRoute = EnCompareRouteImport.update({
+  id: '/en/compare',
+  path: '/en/compare',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/compare': typeof CompareRoute
+  '/map': typeof MapRoute
   '/score': typeof ScoreRoute
+  '/en/compare': typeof EnCompareRoute
+  '/en/map': typeof EnMapRoute
   '/en/score': typeof EnScoreRoute
   '/en/': typeof EnIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/compare': typeof CompareRoute
+  '/map': typeof MapRoute
   '/score': typeof ScoreRoute
+  '/en/compare': typeof EnCompareRoute
+  '/en/map': typeof EnMapRoute
   '/en/score': typeof EnScoreRoute
   '/en': typeof EnIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/compare': typeof CompareRoute
+  '/map': typeof MapRoute
   '/score': typeof ScoreRoute
+  '/en/compare': typeof EnCompareRoute
+  '/en/map': typeof EnMapRoute
   '/en/score': typeof EnScoreRoute
   '/en/': typeof EnIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/score' | '/en/score' | '/en/'
+  fullPaths:
+    | '/'
+    | '/compare'
+    | '/map'
+    | '/score'
+    | '/en/compare'
+    | '/en/map'
+    | '/en/score'
+    | '/en/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/score' | '/en/score' | '/en'
-  id: '__root__' | '/' | '/score' | '/en/score' | '/en/'
+  to:
+    | '/'
+    | '/compare'
+    | '/map'
+    | '/score'
+    | '/en/compare'
+    | '/en/map'
+    | '/en/score'
+    | '/en'
+  id:
+    | '__root__'
+    | '/'
+    | '/compare'
+    | '/map'
+    | '/score'
+    | '/en/compare'
+    | '/en/map'
+    | '/en/score'
+    | '/en/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CompareRoute: typeof CompareRoute
+  MapRoute: typeof MapRoute
   ScoreRoute: typeof ScoreRoute
+  EnCompareRoute: typeof EnCompareRoute
+  EnMapRoute: typeof EnMapRoute
   EnScoreRoute: typeof EnScoreRoute
   EnIndexRoute: typeof EnIndexRoute
 }
@@ -76,6 +141,20 @@ declare module '@tanstack/react-router' {
       path: '/score'
       fullPath: '/score'
       preLoaderRoute: typeof ScoreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/map': {
+      id: '/map'
+      path: '/map'
+      fullPath: '/map'
+      preLoaderRoute: typeof MapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/compare': {
+      id: '/compare'
+      path: '/compare'
+      fullPath: '/compare'
+      preLoaderRoute: typeof CompareRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -99,12 +178,30 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EnScoreRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/en/map': {
+      id: '/en/map'
+      path: '/en/map'
+      fullPath: '/en/map'
+      preLoaderRoute: typeof EnMapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/en/compare': {
+      id: '/en/compare'
+      path: '/en/compare'
+      fullPath: '/en/compare'
+      preLoaderRoute: typeof EnCompareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CompareRoute: CompareRoute,
+  MapRoute: MapRoute,
   ScoreRoute: ScoreRoute,
+  EnCompareRoute: EnCompareRoute,
+  EnMapRoute: EnMapRoute,
   EnScoreRoute: EnScoreRoute,
   EnIndexRoute: EnIndexRoute,
 }

@@ -50,7 +50,8 @@
     "address1": "Address 1",
     "address2": "Address 2",
     "button": "Compare",
-    "winner": "Better"
+    "winner": "Better",
+    "average": "{score}/100 average composite score"
   },
   "city": {
     "title": "Walk Score of {city}",

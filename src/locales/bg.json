@@ -50,7 +50,8 @@
     "address1": "Адрес 1",
     "address2": "Адрес 2",
     "button": "Сравни",
-    "winner": "По-добър"
+    "winner": "По-добър",
+    "average": "{score}/100 среден комбиниран резултат"
   },
   "city": {
     "title": "Walk Score на {city}",
