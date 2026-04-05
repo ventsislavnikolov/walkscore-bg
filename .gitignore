@@ -48,3 +48,4 @@ coverage/e2e-report/
 .env
 .env.staging
 .env.production
+.vercel
