@@ -6,7 +6,7 @@ interface GeocodeResult {
   displayName: string
 }
 
-async function geocodeAddressInternal(address: string): Promise<GeocodeResult> {
+export async function geocodeAddressInternal(address: string): Promise<GeocodeResult> {
   const query = `${address}, България`
 
   const nominatimUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=jsonv2&limit=1&countrycodes=bg`
