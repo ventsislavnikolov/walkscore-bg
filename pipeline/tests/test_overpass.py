@@ -27,10 +27,11 @@ def test_city_name_candidates_include_transliteration():
 
 def test_area_selector_candidates_include_requested_and_fallback_levels():
     selectors = area_selector_candidates("София", admin_level=4)
-    assert 'area["name"="София"]["admin_level"="4"]' in selectors
-    assert 'area["name"="София"]["admin_level"="8"]' in selectors
-    assert 'area["name"="Sofia"]["admin_level"="4"]' in selectors
-    assert 'area["name"="Sofia"]["admin_level"="8"]' in selectors
+    assert 'area["name"="Bulgaria"]["boundary"="administrative"]["admin_level"="2"]->.country;' in selectors[0]
+    assert any('area["name"="София"]["admin_level"="4"](area.country)' in selector for selector in selectors)
+    assert any('area["name"="София"]["admin_level"="8"](area.country)' in selector for selector in selectors)
+    assert any('area["name"="Sofia"]["admin_level"="4"](area.country)' in selector for selector in selectors)
+    assert any('area["name"="Sofia"]["admin_level"="8"](area.country)' in selector for selector in selectors)
 
 
 def test_fetch_json_retries_temporary_failures(monkeypatch):
@@ -64,7 +65,10 @@ def test_select_area_selector_uses_candidate_with_probe_results(monkeypatch):
     )
 
     selector = select_area_selector("София", admin_level=4)
-    assert selector == 'area["name"="Sofia"]["admin_level"="8"]'
+    assert selector == (
+        'area["name"="Bulgaria"]["boundary"="administrative"]["admin_level"="2"]->.country;\n'
+        'area["name"="София"]["admin_level"="8"](area.country)'
+    )
 
 
 def test_fetch_json_raises_clear_error_when_all_endpoints_fail(monkeypatch):

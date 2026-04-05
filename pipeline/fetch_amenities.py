@@ -97,14 +97,18 @@ def _fetch_elements(area_selector: str) -> list[dict]:
     return list(elements_by_key.values())
 
 
-def fetch_city(city_name: str, admin_level: int = 4) -> gpd.GeoDataFrame:
+def fetch_city(
+    city_name: str,
+    admin_level: int = 4,
+    output_path: str | Path | None = None,
+) -> gpd.GeoDataFrame:
     """Fetch and classify all amenities for a city."""
     print(f"Fetching amenities for {city_name}...")
     area_selector = select_area_selector(city_name, admin_level)
     features = parse_elements(_fetch_elements(area_selector))
     gdf = gpd.GeoDataFrame(features, geometry="geometry", crs="EPSG:4326") if features else _empty_amenities_gdf()
 
-    out_path = Path(f"data/{city_name.lower()}_amenities.geojson")
+    out_path = Path(output_path) if output_path is not None else Path(f"data/{city_name.lower()}_amenities.geojson")
     out_path.parent.mkdir(exist_ok=True)
     gdf.to_file(out_path, driver="GeoJSON")
 

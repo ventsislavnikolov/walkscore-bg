@@ -15,6 +15,7 @@ TEMPORARY_STATUS_CODES = {429, 502, 504}
 CITY_NAME_ALIASES = {
     "София": "Sofia",
 }
+BULGARIA_SCOPE = 'area["name"="Bulgaria"]["boundary"="administrative"]["admin_level"="2"]->.country;'
 _BG_TO_LATIN = str.maketrans(
     {
         "А": "A",
@@ -106,14 +107,13 @@ def area_selector_candidates(city_name: str, admin_level: int = 4) -> list[str]:
             levels.append(fallback_level)
 
     candidate_names = city_name_candidates(city_name)
-    alias = CITY_NAME_ALIASES.get(city_name)
-    if alias and alias in candidate_names:
-        candidate_names = [alias, city_name, *[name for name in candidate_names if name not in {alias, city_name}]]
 
     selectors = []
     for candidate_name in candidate_names:
         for level in levels:
-            selectors.append(f'area["name"="{candidate_name}"]["admin_level"="{level}"]')
+            selectors.append(
+                f'{BULGARIA_SCOPE}\narea["name"="{candidate_name}"]["admin_level"="{level}"](area.country)'
+            )
     return selectors
 
 
