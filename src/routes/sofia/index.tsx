@@ -6,7 +6,7 @@ import { ScoreTriple } from '../../components/ScoreTriple'
 import { useTranslation } from '../../lib/i18n'
 import { getSupabase } from '../../server/supabase'
 
-const getCityData = createServerFn({ method: 'GET' }).handler(async () => {
+export const getCityData = createServerFn({ method: 'GET' }).handler(async () => {
   try {
     const supabase = getSupabase()
     const { data: city } = await supabase.from('ws_cities').select('*').eq('slug', 'sofia').single()

@@ -6,7 +6,7 @@ import { ScoreTriple } from '../../components/ScoreTriple'
 import { useTranslation } from '../../lib/i18n'
 import { getSupabase } from '../../server/supabase'
 
-const getNeighborhoodData = createServerFn({ method: 'GET' })
+export const getNeighborhoodData = createServerFn({ method: 'GET' })
   .inputValidator((data: { neighborhood: string }) => data)
   .handler(async ({ data }) => {
     try {

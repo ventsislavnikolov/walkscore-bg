@@ -20,7 +20,11 @@ import { Route as EnIndexRouteImport } from './routes/en/index'
 import { Route as SofiaNeighborhoodRouteImport } from './routes/sofia/$neighborhood'
 import { Route as EnScoreRouteImport } from './routes/en/score'
 import { Route as EnMapRouteImport } from './routes/en/map'
+import { Route as EnEmbedRouteImport } from './routes/en/embed'
 import { Route as EnCompareRouteImport } from './routes/en/compare'
+import { Route as EnAboutRouteImport } from './routes/en/about'
+import { Route as EnSofiaIndexRouteImport } from './routes/en/sofia/index'
+import { Route as EnSofiaNeighborhoodRouteImport } from './routes/en/sofia/$neighborhood'
 
 const ScoreRoute = ScoreRouteImport.update({
   id: '/score',
@@ -77,9 +81,29 @@ const EnMapRoute = EnMapRouteImport.update({
   path: '/en/map',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EnEmbedRoute = EnEmbedRouteImport.update({
+  id: '/en/embed',
+  path: '/en/embed',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EnCompareRoute = EnCompareRouteImport.update({
   id: '/en/compare',
   path: '/en/compare',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EnAboutRoute = EnAboutRouteImport.update({
+  id: '/en/about',
+  path: '/en/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EnSofiaIndexRoute = EnSofiaIndexRouteImport.update({
+  id: '/en/sofia/',
+  path: '/en/sofia/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EnSofiaNeighborhoodRoute = EnSofiaNeighborhoodRouteImport.update({
+  id: '/en/sofia/$neighborhood',
+  path: '/en/sofia/$neighborhood',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -90,12 +114,16 @@ export interface FileRoutesByFullPath {
   '/embed': typeof EmbedRoute
   '/map': typeof MapRoute
   '/score': typeof ScoreRoute
+  '/en/about': typeof EnAboutRoute
   '/en/compare': typeof EnCompareRoute
+  '/en/embed': typeof EnEmbedRoute
   '/en/map': typeof EnMapRoute
   '/en/score': typeof EnScoreRoute
   '/sofia/$neighborhood': typeof SofiaNeighborhoodRoute
   '/en/': typeof EnIndexRoute
   '/sofia/': typeof SofiaIndexRoute
+  '/en/sofia/$neighborhood': typeof EnSofiaNeighborhoodRoute
+  '/en/sofia/': typeof EnSofiaIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -104,12 +132,16 @@ export interface FileRoutesByTo {
   '/embed': typeof EmbedRoute
   '/map': typeof MapRoute
   '/score': typeof ScoreRoute
+  '/en/about': typeof EnAboutRoute
   '/en/compare': typeof EnCompareRoute
+  '/en/embed': typeof EnEmbedRoute
   '/en/map': typeof EnMapRoute
   '/en/score': typeof EnScoreRoute
   '/sofia/$neighborhood': typeof SofiaNeighborhoodRoute
   '/en': typeof EnIndexRoute
   '/sofia': typeof SofiaIndexRoute
+  '/en/sofia/$neighborhood': typeof EnSofiaNeighborhoodRoute
+  '/en/sofia': typeof EnSofiaIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -119,12 +151,16 @@ export interface FileRoutesById {
   '/embed': typeof EmbedRoute
   '/map': typeof MapRoute
   '/score': typeof ScoreRoute
+  '/en/about': typeof EnAboutRoute
   '/en/compare': typeof EnCompareRoute
+  '/en/embed': typeof EnEmbedRoute
   '/en/map': typeof EnMapRoute
   '/en/score': typeof EnScoreRoute
   '/sofia/$neighborhood': typeof SofiaNeighborhoodRoute
   '/en/': typeof EnIndexRoute
   '/sofia/': typeof SofiaIndexRoute
+  '/en/sofia/$neighborhood': typeof EnSofiaNeighborhoodRoute
+  '/en/sofia/': typeof EnSofiaIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -135,12 +171,16 @@ export interface FileRouteTypes {
     | '/embed'
     | '/map'
     | '/score'
+    | '/en/about'
     | '/en/compare'
+    | '/en/embed'
     | '/en/map'
     | '/en/score'
     | '/sofia/$neighborhood'
     | '/en/'
     | '/sofia/'
+    | '/en/sofia/$neighborhood'
+    | '/en/sofia/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -149,12 +189,16 @@ export interface FileRouteTypes {
     | '/embed'
     | '/map'
     | '/score'
+    | '/en/about'
     | '/en/compare'
+    | '/en/embed'
     | '/en/map'
     | '/en/score'
     | '/sofia/$neighborhood'
     | '/en'
     | '/sofia'
+    | '/en/sofia/$neighborhood'
+    | '/en/sofia'
   id:
     | '__root__'
     | '/'
@@ -163,12 +207,16 @@ export interface FileRouteTypes {
     | '/embed'
     | '/map'
     | '/score'
+    | '/en/about'
     | '/en/compare'
+    | '/en/embed'
     | '/en/map'
     | '/en/score'
     | '/sofia/$neighborhood'
     | '/en/'
     | '/sofia/'
+    | '/en/sofia/$neighborhood'
+    | '/en/sofia/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -178,12 +226,16 @@ export interface RootRouteChildren {
   EmbedRoute: typeof EmbedRoute
   MapRoute: typeof MapRoute
   ScoreRoute: typeof ScoreRoute
+  EnAboutRoute: typeof EnAboutRoute
   EnCompareRoute: typeof EnCompareRoute
+  EnEmbedRoute: typeof EnEmbedRoute
   EnMapRoute: typeof EnMapRoute
   EnScoreRoute: typeof EnScoreRoute
   SofiaNeighborhoodRoute: typeof SofiaNeighborhoodRoute
   EnIndexRoute: typeof EnIndexRoute
   SofiaIndexRoute: typeof SofiaIndexRoute
+  EnSofiaNeighborhoodRoute: typeof EnSofiaNeighborhoodRoute
+  EnSofiaIndexRoute: typeof EnSofiaIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -265,11 +317,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EnMapRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/en/embed': {
+      id: '/en/embed'
+      path: '/en/embed'
+      fullPath: '/en/embed'
+      preLoaderRoute: typeof EnEmbedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/en/compare': {
       id: '/en/compare'
       path: '/en/compare'
       fullPath: '/en/compare'
       preLoaderRoute: typeof EnCompareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/en/about': {
+      id: '/en/about'
+      path: '/en/about'
+      fullPath: '/en/about'
+      preLoaderRoute: typeof EnAboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/en/sofia/': {
+      id: '/en/sofia/'
+      path: '/en/sofia'
+      fullPath: '/en/sofia/'
+      preLoaderRoute: typeof EnSofiaIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/en/sofia/$neighborhood': {
+      id: '/en/sofia/$neighborhood'
+      path: '/en/sofia/$neighborhood'
+      fullPath: '/en/sofia/$neighborhood'
+      preLoaderRoute: typeof EnSofiaNeighborhoodRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -282,12 +362,16 @@ const rootRouteChildren: RootRouteChildren = {
   EmbedRoute: EmbedRoute,
   MapRoute: MapRoute,
   ScoreRoute: ScoreRoute,
+  EnAboutRoute: EnAboutRoute,
   EnCompareRoute: EnCompareRoute,
+  EnEmbedRoute: EnEmbedRoute,
   EnMapRoute: EnMapRoute,
   EnScoreRoute: EnScoreRoute,
   SofiaNeighborhoodRoute: SofiaNeighborhoodRoute,
   EnIndexRoute: EnIndexRoute,
   SofiaIndexRoute: SofiaIndexRoute,
+  EnSofiaNeighborhoodRoute: EnSofiaNeighborhoodRoute,
+  EnSofiaIndexRoute: EnSofiaIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
