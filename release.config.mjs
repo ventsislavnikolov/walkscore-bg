@@ -21,12 +21,6 @@ export default {
       },
     ],
     [
-      "@semantic-release/npm",
-      {
-        npmPublish: true,
-      },
-    ],
-    [
       "@semantic-release/git",
       {
         assets: ["dist/", "package.json", "CHANGELOG.md"],
@@ -35,12 +29,5 @@ export default {
       },
     ],
     "@semantic-release/github",
-    [
-      "semantic-release-ado",
-      {
-        varName: "semanticVersion",
-        setOnlyOnRelease: false,
-      },
-    ],
   ],
 };
