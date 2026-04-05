@@ -1,5 +1,8 @@
 import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
 
+import { Footer } from '../components/Footer'
+import { Header } from '../components/Header'
+import { useLocale } from '../lib/i18n'
 import appCss from '../styles/globals.css?url'
 
 export const Route = createRootRoute({
@@ -19,13 +22,19 @@ export const Route = createRootRoute({
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const locale = useLocale()
+
   return (
-    <html lang="bg">
+    <html lang={locale}>
       <head>
         <HeadContent />
       </head>
       <body className="min-h-screen bg-stone-50 text-stone-900 antialiased">
-        {children}
+        <div className="flex min-h-screen flex-col">
+          <Header />
+          <div className="flex-1">{children}</div>
+          <Footer />
+        </div>
         <Scripts />
       </body>
     </html>
