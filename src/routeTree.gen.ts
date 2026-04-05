@@ -23,6 +23,8 @@ import { Route as EnMapRouteImport } from './routes/en/map'
 import { Route as EnEmbedRouteImport } from './routes/en/embed'
 import { Route as EnCompareRouteImport } from './routes/en/compare'
 import { Route as EnAboutRouteImport } from './routes/en/about'
+import { Route as ApiSitemapRouteImport } from './routes/api/sitemap'
+import { Route as ApiOgRouteImport } from './routes/api/og'
 import { Route as EnSofiaIndexRouteImport } from './routes/en/sofia/index'
 import { Route as EnSofiaNeighborhoodRouteImport } from './routes/en/sofia/$neighborhood'
 
@@ -96,6 +98,16 @@ const EnAboutRoute = EnAboutRouteImport.update({
   path: '/en/about',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiSitemapRoute = ApiSitemapRouteImport.update({
+  id: '/api/sitemap',
+  path: '/api/sitemap',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiOgRoute = ApiOgRouteImport.update({
+  id: '/api/og',
+  path: '/api/og',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EnSofiaIndexRoute = EnSofiaIndexRouteImport.update({
   id: '/en/sofia/',
   path: '/en/sofia/',
@@ -114,6 +126,8 @@ export interface FileRoutesByFullPath {
   '/embed': typeof EmbedRoute
   '/map': typeof MapRoute
   '/score': typeof ScoreRoute
+  '/api/og': typeof ApiOgRoute
+  '/api/sitemap': typeof ApiSitemapRoute
   '/en/about': typeof EnAboutRoute
   '/en/compare': typeof EnCompareRoute
   '/en/embed': typeof EnEmbedRoute
@@ -132,6 +146,8 @@ export interface FileRoutesByTo {
   '/embed': typeof EmbedRoute
   '/map': typeof MapRoute
   '/score': typeof ScoreRoute
+  '/api/og': typeof ApiOgRoute
+  '/api/sitemap': typeof ApiSitemapRoute
   '/en/about': typeof EnAboutRoute
   '/en/compare': typeof EnCompareRoute
   '/en/embed': typeof EnEmbedRoute
@@ -151,6 +167,8 @@ export interface FileRoutesById {
   '/embed': typeof EmbedRoute
   '/map': typeof MapRoute
   '/score': typeof ScoreRoute
+  '/api/og': typeof ApiOgRoute
+  '/api/sitemap': typeof ApiSitemapRoute
   '/en/about': typeof EnAboutRoute
   '/en/compare': typeof EnCompareRoute
   '/en/embed': typeof EnEmbedRoute
@@ -171,6 +189,8 @@ export interface FileRouteTypes {
     | '/embed'
     | '/map'
     | '/score'
+    | '/api/og'
+    | '/api/sitemap'
     | '/en/about'
     | '/en/compare'
     | '/en/embed'
@@ -189,6 +209,8 @@ export interface FileRouteTypes {
     | '/embed'
     | '/map'
     | '/score'
+    | '/api/og'
+    | '/api/sitemap'
     | '/en/about'
     | '/en/compare'
     | '/en/embed'
@@ -207,6 +229,8 @@ export interface FileRouteTypes {
     | '/embed'
     | '/map'
     | '/score'
+    | '/api/og'
+    | '/api/sitemap'
     | '/en/about'
     | '/en/compare'
     | '/en/embed'
@@ -226,6 +250,8 @@ export interface RootRouteChildren {
   EmbedRoute: typeof EmbedRoute
   MapRoute: typeof MapRoute
   ScoreRoute: typeof ScoreRoute
+  ApiOgRoute: typeof ApiOgRoute
+  ApiSitemapRoute: typeof ApiSitemapRoute
   EnAboutRoute: typeof EnAboutRoute
   EnCompareRoute: typeof EnCompareRoute
   EnEmbedRoute: typeof EnEmbedRoute
@@ -338,6 +364,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EnAboutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/sitemap': {
+      id: '/api/sitemap'
+      path: '/api/sitemap'
+      fullPath: '/api/sitemap'
+      preLoaderRoute: typeof ApiSitemapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/og': {
+      id: '/api/og'
+      path: '/api/og'
+      fullPath: '/api/og'
+      preLoaderRoute: typeof ApiOgRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/en/sofia/': {
       id: '/en/sofia/'
       path: '/en/sofia'
@@ -362,6 +402,8 @@ const rootRouteChildren: RootRouteChildren = {
   EmbedRoute: EmbedRoute,
   MapRoute: MapRoute,
   ScoreRoute: ScoreRoute,
+  ApiOgRoute: ApiOgRoute,
+  ApiSitemapRoute: ApiSitemapRoute,
   EnAboutRoute: EnAboutRoute,
   EnCompareRoute: EnCompareRoute,
   EnEmbedRoute: EnEmbedRoute,
