@@ -1,24 +1,50 @@
-node_modules/
-dist/
-.output/
-.vinxi/
-.vercel/
-.env
-.env.local
-data/
-public/tiles/*.pmtiles
-__pycache__/
-*.pyc
-.venv/
-.worktrees/
-.DS_Store
-.nitro
-.tanstack
-.wrangler
-__unconfig*
-dist-ssr
-todos.json
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
 *.local
-coverage/
-test-results/
-playwright-report/
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+coverage
+.tanstack
+TODO.txt
+.playwright-mcp
+screenshots
+playwright-report
+test-results
+.claude/tasks
+
+# MCP
+.mcp.json
+.cursor/mcp.json
+
+# E2E Coverage
+coverage/e2e/
+coverage/e2e-report/
+
+# Git worktrees
+.worktrees
+
+# env files
+.env
+.env.staging
+.env.production

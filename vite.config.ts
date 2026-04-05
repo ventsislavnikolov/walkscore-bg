@@ -1,31 +1,34 @@
-import { defineConfig } from 'vite'
-import { devtools } from '@tanstack/devtools-vite'
-import tsconfigPaths from 'vite-tsconfig-paths'
-import { nitro } from 'nitro/vite'
+import path from "node:path";
+import tailwindcss from "@tailwindcss/vite";
+import { tanstackRouter } from "@tanstack/router-plugin/vite";
+import viteReact from "@vitejs/plugin-react";
+import { defineConfig } from "vite";
+import viteTsConfigPaths from "vite-tsconfig-paths";
 
-import { tanstackStart } from '@tanstack/react-start/plugin/vite'
-
-import viteReact from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
-
-const config = defineConfig({
-  plugins: [
-    devtools(),
-    tsconfigPaths({ projects: ['./tsconfig.json'] }),
-    tanstackStart(),
-    viteReact(),
-    tailwindcss(),
-    nitro({ preset: 'vercel' }),
-  ],
-  environments: {
-    ssr: {
-      build: {
-        rollupOptions: {
-          input: './server.ts',
-        },
-      },
+export default defineConfig({
+  server: {
+    port: 3000,
+  },
+  preview: {
+    port: 3000,
+  },
+  resolve: {
+    alias: {
+      "@": path.resolve(import.meta.dirname, "./src"),
     },
   },
-})
-
-export default config
+  build: {
+    target: "esnext",
+  },
+  plugins: [
+    viteTsConfigPaths({
+      projects: ["./tsconfig.json"],
+    }),
+    tailwindcss(),
+    tanstackRouter({
+      target: "react",
+      autoCodeSplitting: true,
+    }),
+    viteReact(),
+  ],
+});
