@@ -13,7 +13,7 @@ export function setLocale(locale: Locale) {
 }
 
 export function useLocale(): Locale {
-  return useStore(localeStore)
+  return useStore(localeStore, (locale) => locale)
 }
 
 export function useTranslation() {
