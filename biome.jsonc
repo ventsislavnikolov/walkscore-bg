@@ -1,0 +1,99 @@
+{
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "extends": [
+    "ultracite/core",
+    "ultracite/react",
+    "ultracite/biome/core",
+    "ultracite/biome/react"
+  ],
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "a11y": {
+        "useButtonType": "off",
+        "noSvgWithoutTitle": "off",
+        "useKeyWithClickEvents": "off",
+        "noStaticElementInteractions": "off",
+        "noNoninteractiveElementInteractions": "off"
+      },
+      "complexity": {
+        "noVoid": "off",
+        "noForEach": "off",
+        "useOptionalChain": "off",
+        "noImportantStyles": "off",
+        "noExcessiveCognitiveComplexity": "off"
+      },
+      "correctness": {
+        "useImageSize": "off",
+        "useHookAtTopLevel": "off",
+        "useUniqueElementIds": "off",
+        "useSingleJsDocAsterisk": "off",
+        "noNestedComponentDefinitions": "off"
+      },
+      "nursery": {
+        "noShadow": "off",
+        "noLeakedRender": "off",
+        "noEqualsToNull": "off",
+        "noIncrementDecrement": "off",
+        "noUnnecessaryConditions": "off"
+      },
+      "performance": {
+        "noBarrelFile": "off",
+        "noImgElement": "off",
+        "useTopLevelRegex": "off",
+        "noNamespaceImport": "off"
+      },
+      "style": {
+        "noEnum": "off",
+        "noSubstr": "off",
+        "useAtIndex": "off",
+        "noMagicNumbers": "off",
+        "noNestedTernary": "off",
+        "noExportedImports": "off",
+        "useBlockStatements": "off",
+        "noNonNullAssertion": "off",
+        "useNamingConvention": "off",
+        "useDefaultSwitchClause": "off",
+        "useFilenamingConvention": "off",
+        "useUnifiedTypeSignatures": "off",
+        "useConsistentTypeDefinitions": "off"
+      },
+      "suspicious": {
+        "noAlert": "off",
+        "useAwait": "off",
+        "useStrictMode": "off",
+        "noExplicitAny": "off",
+        "noSkippedTests": "off",
+        "noEvolvingTypes": "off",
+        "noArrayIndexKey": "off",
+        "noUnknownAtRules": "off",
+        "noDocumentCookie": "off",
+        "noBitwiseOperators": "off",
+        "noEmptyBlockStatements": "off",
+        "noShadowRestrictedNames": "off",
+        "noTemplateCurlyInString": "off"
+      }
+    }
+  },
+  "files": {
+    "includes": [
+      "src/**/*.ts",
+      "src/**/*.tsx",
+      "src/**/*.js",
+      "src/**/*.jsx",
+      "!src/routeTree.gen.ts",
+      "!src/**/*.css",
+      "commitlint.config.js",
+      "release.config.mjs",
+      "vite.config.ts",
+      "vitest.config.ts",
+      "package.json",
+      "biome.jsonc",
+      "tsconfig.json",
+      "tsconfig.app.json",
+      "tsconfig.node.json"
+    ],
+    "maxSize": 6000000
+  }
+}

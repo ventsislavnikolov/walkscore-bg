@@ -1,1 +1,50 @@
-.worktrees/
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+coverage
+.tanstack
+TODO.txt
+.playwright-mcp
+screenshots
+playwright-report
+test-results
+.claude/tasks
+
+# MCP
+.mcp.json
+.cursor/mcp.json
+
+# E2E Coverage
+coverage/e2e/
+coverage/e2e-report/
+
+# Git worktrees
+.worktrees
+
+# env files
+.env
+.env.staging
+.env.production
