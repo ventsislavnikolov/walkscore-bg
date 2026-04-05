@@ -1,0 +1,73 @@
+{
+  "site": {
+    "title": "WalkScore.bg",
+    "description": "Колко пешеходен е твоят адрес? Първият пешеходен индекс за България."
+  },
+  "nav": {
+    "search": "Търсене",
+    "map": "Карта",
+    "compare": "Сравни",
+    "about": "Как работи"
+  },
+  "hero": {
+    "heading": "Walk Score",
+    "headingAccent": ".bg",
+    "subheading": "Колко пешеходен е твоят адрес? Първият пешеходен индекс за България.",
+    "placeholder": "ул. Витошка 42, София",
+    "button": "Провери",
+    "buttonLoading": "Търся...",
+    "tryLabel": "Опитай:"
+  },
+  "howItWorks": {
+    "title": "Как работи?",
+    "step1": { "title": "Въведи адрес", "desc": "Всеки адрес в София" },
+    "step2": { "title": "Получи Score", "desc": "0-100 с разбивка по категории" },
+    "step3": { "title": "Виж картата", "desc": "Heatmap на целия квартал" }
+  },
+  "score": {
+    "walkScore": "Walk Score",
+    "transitScore": "Transit Score",
+    "bikeScore": "Bike Score",
+    "outOf": "от 100",
+    "breakdown": "Разбивка по категории",
+    "nearbyTitle": "Наблизо",
+    "newSearch": "← Ново търсене",
+    "share": "Сподели",
+    "copyLink": "Копирай линк",
+    "embedCode": "Embed код",
+    "copied": "Копирано!"
+  },
+  "map": {
+    "title": "Карта на София",
+    "layers": "Слоеве",
+    "walk": "Пешеходен",
+    "transit": "Транспорт",
+    "bike": "Велосипеден",
+    "details": "Виж детайли →"
+  },
+  "compare": {
+    "title": "Сравни два адреса",
+    "address1": "Адрес 1",
+    "address2": "Адрес 2",
+    "button": "Сравни",
+    "winner": "По-добър"
+  },
+  "city": {
+    "title": "Walk Score на {city}",
+    "avgScores": "Средни стойности",
+    "neighborhoods": "Квартали",
+    "rank": "#"
+  },
+  "footer": {
+    "about": "За проекта",
+    "methodology": "Методология",
+    "data": "Данни от OpenStreetMap",
+    "language": "English"
+  },
+  "errors": {
+    "notFound": "Адресът не е намерен",
+    "noData": "Няма данни за тази локация. Покриваме засега само София.",
+    "generic": "Грешка при зареждане",
+    "missingAddress": "Моля, въведете адрес"
+  }
+}
