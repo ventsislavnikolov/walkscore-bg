@@ -1,0 +1,74 @@
+{
+  "site": {
+    "title": "WalkScore.bg",
+    "description": "How walkable is your address? Bulgaria's first walkability index."
+  },
+  "nav": {
+    "search": "Search",
+    "map": "Map",
+    "compare": "Compare",
+    "about": "How it works"
+  },
+  "hero": {
+    "heading": "Walk Score",
+    "headingAccent": ".bg",
+    "subheading": "How walkable is your address? Bulgaria's first walkability index.",
+    "placeholder": "ul. Vitoshka 42, Sofia",
+    "button": "Check",
+    "buttonLoading": "Searching...",
+    "tryLabel": "Try:"
+  },
+  "howItWorks": {
+    "title": "How it works?",
+    "step1": { "title": "Enter address", "desc": "Any address in Sofia" },
+    "step2": { "title": "Get scores", "desc": "0-100 with category breakdown" },
+    "step3": { "title": "See the map", "desc": "Heatmap of the whole area" }
+  },
+  "score": {
+    "walkScore": "Walk Score",
+    "transitScore": "Transit Score",
+    "bikeScore": "Bike Score",
+    "outOf": "out of 100",
+    "breakdown": "Category Breakdown",
+    "nearbyTitle": "Nearby",
+    "newSearch": "← New search",
+    "share": "Share",
+    "copyLink": "Copy link",
+    "embedCode": "Embed code",
+    "copied": "Copied!"
+  },
+  "map": {
+    "title": "Map of Sofia",
+    "layers": "Layers",
+    "walk": "Walkability",
+    "transit": "Transit",
+    "bike": "Bikeability",
+    "details": "See details →"
+  },
+  "compare": {
+    "title": "Compare two addresses",
+    "address1": "Address 1",
+    "address2": "Address 2",
+    "button": "Compare",
+    "winner": "Better",
+    "average": "{score}/100 average composite score"
+  },
+  "city": {
+    "title": "Walk Score of {city}",
+    "avgScores": "Average Scores",
+    "neighborhoods": "Neighborhoods",
+    "rank": "#"
+  },
+  "footer": {
+    "about": "About",
+    "methodology": "Methodology",
+    "data": "Data from OpenStreetMap",
+    "language": "Български"
+  },
+  "errors": {
+    "notFound": "Address not found",
+    "noData": "No data for this location. We currently cover Sofia only.",
+    "generic": "Error loading data",
+    "missingAddress": "Please enter an address"
+  }
+}
