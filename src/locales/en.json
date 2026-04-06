@@ -68,6 +68,7 @@
   "errors": {
     "notFound": "Address not found",
     "noData": "No data for this location. We currently cover Sofia only.",
+    "datasetUnavailable": "Walk Score data has not been loaded into the production environment yet.",
     "generic": "Error loading data",
     "missingAddress": "Please enter an address"
   }

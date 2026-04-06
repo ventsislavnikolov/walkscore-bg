@@ -2,7 +2,18 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const rpc = vi.fn();
 const insert = vi.fn();
-const from = vi.fn(() => ({ insert }));
+const select = vi.fn();
+const from = vi.fn((table: string) => {
+  if (table === "ws_search_log") {
+    return { insert };
+  }
+
+  if (table === "ws_cells") {
+    return { select };
+  }
+
+  throw new Error(`Unexpected table: ${table}`);
+});
 
 vi.mock("../supabase", () => ({
   getSupabase: () => ({
@@ -26,6 +37,8 @@ describe("score server functions", () => {
     from.mockClear();
     insert.mockReset();
     insert.mockResolvedValue({ error: null });
+    select.mockReset();
+    select.mockResolvedValue({ count: 1, error: null });
   });
 
   it("formats score results returned from Supabase", async () => {
@@ -77,6 +90,18 @@ describe("score server functions", () => {
 
     await expect(getScoreByCoordsInternal({ lat: 0, lng: 0 })).rejects.toThrow(
       "No data for this location"
+    );
+  });
+
+  it("throws a dataset error when no cells are loaded", async () => {
+    rpc.mockResolvedValueOnce({ data: [], error: null });
+    select.mockResolvedValueOnce({ count: 0, error: null });
+
+    const { DATASET_UNAVAILABLE_ERROR, getScoreByCoordsInternal } =
+      await import("../score");
+
+    await expect(getScoreByCoordsInternal({ lat: 0, lng: 0 })).rejects.toThrow(
+      DATASET_UNAVAILABLE_ERROR
     );
   });
 

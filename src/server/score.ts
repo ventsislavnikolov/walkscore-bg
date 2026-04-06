@@ -15,6 +15,9 @@ interface ScoreParams {
   lng: number;
 }
 
+export const DATASET_UNAVAILABLE_ERROR = "Dataset unavailable";
+export const NO_DATA_FOR_LOCATION_ERROR = "No data for this location";
+
 export async function getScoreByCoordsInternal(
   data: ScoreParams
 ): Promise<ScoreResult> {
@@ -30,7 +33,15 @@ export async function getScoreByCoordsInternal(
   });
 
   if (error || !scores?.length) {
-    throw new Error("No data for this location");
+    const { count, error: countError } = await supabase
+      .from("ws_cells")
+      .select("id", { count: "exact", head: true });
+
+    if (!(countError || error) && count === 0) {
+      throw new Error(DATASET_UNAVAILABLE_ERROR);
+    }
+
+    throw new Error(NO_DATA_FOR_LOCATION_ERROR);
   }
 
   const score = scores[0];

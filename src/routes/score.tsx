@@ -11,7 +11,11 @@ import { ShareEmbed } from "../components/ShareEmbed";
 import { useTranslation } from "../lib/i18n";
 import type { ScoreType } from "../lib/types";
 import { getNearbyAmenities } from "../server/amenities";
-import { getScoreByAddress, getScoreByCoords } from "../server/score";
+import {
+  DATASET_UNAVAILABLE_ERROR,
+  getScoreByAddress,
+  getScoreByCoords,
+} from "../server/score";
 
 export const Route = createFileRoute("/score")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -64,9 +68,15 @@ export function ScorePage() {
   }
 
   if (scoreQuery.error) {
+    const errorMessage =
+      scoreQuery.error instanceof Error &&
+      scoreQuery.error.message === DATASET_UNAVAILABLE_ERROR
+        ? t("errors.datasetUnavailable")
+        : t("errors.noData");
+
     return (
       <main className="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-4 py-12 text-center">
-        <p className="text-lg text-stone-600">{t("errors.noData")}</p>
+        <p className="text-lg text-stone-600">{errorMessage}</p>
         <a className="text-emerald-600 hover:underline" href={homeHref}>
           {t("score.newSearch")}
         </a>
