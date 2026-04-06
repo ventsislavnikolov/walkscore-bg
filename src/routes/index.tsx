@@ -12,7 +12,7 @@ const QUICK_LINKS = [
   { bg: "ул. Граф Игнатиев", en: "ul. Graf Ignatiev" },
   { bg: "ж.к. Люлин", en: "zh.k. Lyulin" },
   { bg: "кв. Лозенец", en: "kv. Lozenets" },
-  { bg: "Витоша", en: "Vitosha" },
+  { bg: "кв. Витоша", en: "kv. Vitosha" },
 ] as const;
 
 export function HomePage() {

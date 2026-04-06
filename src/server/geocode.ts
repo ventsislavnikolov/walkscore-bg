@@ -6,10 +6,28 @@ interface GeocodeResult {
   lng: number;
 }
 
+function normalizeAddressQuery(address: string) {
+  const normalized = address.trim().toLowerCase();
+
+  // "Vitosha" often resolves to the mountain/administrative region instead of
+  // the Sofia neighborhood we actually cover in the MVP.
+  if (
+    normalized === "витоша" ||
+    normalized === "витоша, sofia" ||
+    normalized === "vitosha" ||
+    normalized === "vitosha, sofia"
+  ) {
+    return "кв. Витоша, София";
+  }
+
+  return address;
+}
+
 export async function geocodeAddressInternal(
   address: string
 ): Promise<GeocodeResult> {
-  const query = `${address}, България`;
+  const normalizedAddress = normalizeAddressQuery(address);
+  const query = `${normalizedAddress}, България`;
 
   const nominatimUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=jsonv2&limit=1&countrycodes=bg`;
   const nominatimResponse = await fetch(nominatimUrl, {
@@ -32,7 +50,7 @@ export async function geocodeAddressInternal(
     }
   }
 
-  const photonUrl = `https://photon.komoot.io/api/?q=${encodeURIComponent(address)}&limit=1&lang=bg&lat=42.6977&lon=23.3219`;
+  const photonUrl = `https://photon.komoot.io/api/?q=${encodeURIComponent(normalizedAddress)}&limit=1&lang=bg&lat=42.6977&lon=23.3219`;
   const photonResponse = await fetch(photonUrl);
   if (photonResponse.ok) {
     const photonData = (await photonResponse.json()) as {
