@@ -1,5 +1,3 @@
-import process from "node:process";
-
 import { createClient } from "@supabase/supabase-js";
 
 let client: ReturnType<typeof createClient> | null = null;
