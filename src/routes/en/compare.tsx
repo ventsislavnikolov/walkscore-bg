@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { setLocale } from "../../lib/i18n";
-import { ComparePage } from "../compare";
+import { ComparePage } from "../../pages/ComparePage";
 
 export const Route = createFileRoute("/en/compare")({
   beforeLoad: () => {

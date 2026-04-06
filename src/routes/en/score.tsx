@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { setLocale } from "../../lib/i18n";
-import { ScorePage } from "../score";
+import { ScorePage } from "../../pages/ScorePage";
 
 export const Route = createFileRoute("/en/score")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -12,5 +12,10 @@ export const Route = createFileRoute("/en/score")({
   beforeLoad: () => {
     setLocale("en");
   },
-  component: ScorePage,
+  component: EnglishScoreRoutePage,
 });
+
+function EnglishScoreRoutePage() {
+  const { address, lat, lng } = Route.useSearch();
+  return <ScorePage address={address} lat={lat} lng={lng} />;
+}

@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { setLocale } from "../../lib/i18n";
-import { EmbedPage } from "../embed";
+import { EmbedPage } from "../../pages/EmbedPage";
 
 export const Route = createFileRoute("/en/embed")({
   beforeLoad: () => {

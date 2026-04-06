@@ -1,10 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { setLocale } from "../../../lib/i18n";
-import {
-  getNeighborhoodData,
-  NeighborhoodPage,
-} from "../../sofia/$neighborhood";
+import { NeighborhoodPage } from "../../../pages/NeighborhoodPage";
+import { getNeighborhoodData } from "../../sofia/$neighborhood";
 
 export const Route = createFileRoute("/en/sofia/$neighborhood")({
   beforeLoad: () => {
@@ -12,7 +10,7 @@ export const Route = createFileRoute("/en/sofia/$neighborhood")({
   },
   loader: ({ params }) =>
     getNeighborhoodData({ data: { neighborhood: params.neighborhood } }),
-  component: NeighborhoodPage,
+  component: EnglishNeighborhoodRoutePage,
   head: ({ loaderData }) => ({
     meta: [
       {
@@ -25,3 +23,8 @@ export const Route = createFileRoute("/en/sofia/$neighborhood")({
     ],
   }),
 });
+
+function EnglishNeighborhoodRoutePage() {
+  const { neighborhood, city } = Route.useLoaderData();
+  return <NeighborhoodPage city={city} neighborhood={neighborhood} />;
+}
