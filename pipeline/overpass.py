@@ -6,16 +6,24 @@ import time
 import requests
 
 OVERPASS_URLS = (
+    "https://overpass.openstreetmap.fr/api/interpreter",
+    "https://overpass.private.coffee/api/interpreter",
     "https://lz4.overpass-api.de/api/interpreter",
     "https://z.overpass-api.de/api/interpreter",
-    "https://overpass.kumi.systems/api/interpreter",
+    "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
     "https://overpass-api.de/api/interpreter",
 )
-TEMPORARY_STATUS_CODES = {429, 502, 504}
+RETRYABLE_STATUS_CODES = {403, 429, 502, 504}
 CITY_NAME_ALIASES = {
     "София": "Sofia",
 }
 BULGARIA_SCOPE = 'area["name"="Bulgaria"]["boundary"="administrative"]["admin_level"="2"]->.country;'
+FIXED_AREA_SELECTORS = {
+    # Sofia's Overpass area id gives a stable city scope on the classic
+    # overpass-api.de mirrors and avoids expensive discovery probes.
+    "София": "area(3604283101)",
+    "Sofia": "area(3604283101)",
+}
 _BG_TO_LATIN = str.maketrans(
     {
         "А": "A",
@@ -127,21 +135,34 @@ def fetch_json(
     """Execute an Overpass query with endpoint fallback for transient failures."""
     failures: list[str] = []
     urls = tuple(urls)
+    request_timeout = (5, timeout)
 
     for attempt in range(1, rounds + 1):
         for url in urls:
             try:
-                response = requests.get(url, params={"data": query}, timeout=timeout)
+                response = requests.post(
+                    url,
+                    data={"data": query},
+                    headers={"User-Agent": "WalkScoreBG/1.0 (walkscore.bg)"},
+                    timeout=request_timeout,
+                )
             except requests.RequestException as exc:
                 failures.append(f"{url}: {exc.__class__.__name__}")
                 continue
 
-            if response.status_code in TEMPORARY_STATUS_CODES:
+            if response.status_code in RETRYABLE_STATUS_CODES:
                 failures.append(f"{url}: HTTP {response.status_code}")
                 continue
             if response.status_code >= 400:
-                body_preview = response.text.strip().splitlines()[0][:120] if response.text else ""
-                raise RuntimeError(f"Overpass API request failed with HTTP {response.status_code}: {body_preview}")
+                body_preview = (
+                    response.text.strip().splitlines()[0][:120]
+                    if response.text
+                    else ""
+                )
+                failures.append(
+                    f"{url}: HTTP {response.status_code} {body_preview}".strip()
+                )
+                continue
 
             try:
                 return response.json()
@@ -164,6 +185,10 @@ def select_area_selector(
     probe_selector: str = 'nwr["highway"="bus_stop"]',
 ) -> str:
     """Pick the first city area selector that returns probe data."""
+    fixed_selector = FIXED_AREA_SELECTORS.get(city_name)
+    if fixed_selector is not None:
+        return fixed_selector
+
     first_successful_selector = None
 
     for selector in area_selector_candidates(city_name, admin_level):

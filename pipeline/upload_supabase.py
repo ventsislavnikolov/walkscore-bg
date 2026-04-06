@@ -1,6 +1,5 @@
 """Upload computed scores and amenities to Supabase PostGIS."""
 
-import json
 import os
 
 import geopandas as gpd
@@ -12,8 +11,8 @@ load_dotenv()
 
 def get_supabase():
     """Create a Supabase client from environment variables."""
-    url = os.environ["SUPABASE_URL"]
-    key = os.environ["SUPABASE_SERVICE_KEY"]
+    url = os.environ["SUPABASE_URL"].strip()
+    key = os.environ["SUPABASE_SERVICE_KEY"].strip()
     return create_client(url, key)
 
 
@@ -51,13 +50,13 @@ def upload_cells(scores_path: str, city: str = "sofia", batch_size: int = 500) -
         )
 
         if len(rows) >= batch_size:
-            supabase.rpc("insert_cells_wkt", {"cells": json.dumps(rows)}).execute()
+            supabase.rpc("insert_cells_wkt", {"cells": rows}).execute()
             uploaded += len(rows)
             print(f"  Uploaded {uploaded}/{len(gdf)} cells...")
             rows = []
 
     if rows:
-        supabase.rpc("insert_cells_wkt", {"cells": json.dumps(rows)}).execute()
+        supabase.rpc("insert_cells_wkt", {"cells": rows}).execute()
         uploaded += len(rows)
 
     print(f"  Done: {uploaded} cells uploaded.")
@@ -87,13 +86,13 @@ def upload_amenities(amenities_path: str, city: str = "sofia", batch_size: int =
         )
 
         if len(rows) >= batch_size:
-            supabase.rpc("insert_amenities_wkt", {"amenities": json.dumps(rows)}).execute()
+            supabase.rpc("insert_amenities_wkt", {"amenities": rows}).execute()
             uploaded += len(rows)
             print(f"  Uploaded {uploaded}/{len(gdf)} amenities...")
             rows = []
 
     if rows:
-        supabase.rpc("insert_amenities_wkt", {"amenities": json.dumps(rows)}).execute()
+        supabase.rpc("insert_amenities_wkt", {"amenities": rows}).execute()
         uploaded += len(rows)
 
     print(f"  Done: {uploaded} amenities uploaded.")

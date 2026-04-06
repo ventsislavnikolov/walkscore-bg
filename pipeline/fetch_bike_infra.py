@@ -7,6 +7,13 @@ from shapely.geometry import LineString
 
 from pipeline.overpass import fetch_json, select_area_selector
 
+AREA_QUERY_URLS = (
+    "https://lz4.overpass-api.de/api/interpreter",
+    "https://z.overpass-api.de/api/interpreter",
+    "https://overpass-api.de/api/interpreter",
+    "https://overpass.private.coffee/api/interpreter",
+)
+
 
 def _empty_bike_gdf() -> gpd.GeoDataFrame:
     return gpd.GeoDataFrame(
@@ -66,11 +73,17 @@ def _bike_query_parts() -> list[str]:
 
 def _fetch_elements(area_selector: str) -> list[dict]:
     elements_by_key: dict[tuple[str, int], dict] = {}
-    for query_part in _bike_query_parts():
-        data = fetch_json(build_bike_infra_query(area_selector, [query_part]), timeout=300)
-        for element in data.get("elements", []):
-            key = (element.get("type", ""), element["id"])
-            elements_by_key[key] = element
+    query_parts = _bike_query_parts()
+    print(f"  Overpass bike batch (5 selectors)")
+    data = fetch_json(
+        build_bike_infra_query(area_selector, query_parts),
+        timeout=20,
+        rounds=2,
+        urls=AREA_QUERY_URLS,
+    )
+    for element in data.get("elements", []):
+        key = (element.get("type", ""), element["id"])
+        elements_by_key[key] = element
     return list(elements_by_key.values())
 
 

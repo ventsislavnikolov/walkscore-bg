@@ -6,8 +6,8 @@ let client: ReturnType<typeof createClient> | null = null;
 
 export function getSupabase() {
   if (!client) {
-    const url = process.env.SUPABASE_URL;
-    const key = process.env.SUPABASE_SERVICE_KEY;
+    const url = process.env.SUPABASE_URL?.trim();
+    const key = process.env.SUPABASE_SERVICE_KEY?.trim();
 
     if (!(url && key)) {
       throw new Error(

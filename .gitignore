@@ -49,3 +49,8 @@ coverage/e2e-report/
 .env.staging
 .env.production
 .vercel
+
+# Generated pipeline artifacts
+data/
+pipeline/__pycache__/
+pipeline/tests/__pycache__/

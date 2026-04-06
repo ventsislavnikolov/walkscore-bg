@@ -9,6 +9,13 @@ from shapely.geometry import Point
 from pipeline.categories import BIKE_CATEGORIES, TRANSIT_MODES, WALK_CATEGORIES, classify
 from pipeline.overpass import fetch_json, select_area_selector
 
+AREA_QUERY_URLS = (
+    "https://lz4.overpass-api.de/api/interpreter",
+    "https://z.overpass-api.de/api/interpreter",
+    "https://overpass-api.de/api/interpreter",
+    "https://overpass.private.coffee/api/interpreter",
+)
+
 
 def _empty_amenities_gdf() -> gpd.GeoDataFrame:
     return gpd.GeoDataFrame(
@@ -87,10 +94,29 @@ def _expand_query_part(query_part: str) -> list[str]:
     return [f'{prefix}="{value}"]' for value in values]
 
 
+def _batched_query_parts(batch_size: int = 4) -> list[list[str]]:
+    query_parts = _all_query_parts()
+    return [
+        query_parts[index : index + batch_size]
+        for index in range(0, len(query_parts), batch_size)
+    ]
+
+
 def _fetch_elements(area_selector: str) -> list[dict]:
     elements_by_key: dict[tuple[str, int], dict] = {}
-    for query_part in _all_query_parts():
-        data = fetch_json(build_overpass_query(area_selector, [query_part]), timeout=60)
+    batches = _batched_query_parts()
+    for index, query_parts in enumerate(batches, start=1):
+        print(f"  Overpass batch {index}/{len(batches)} ({len(query_parts)} selectors)")
+        try:
+            data = fetch_json(
+                build_overpass_query(area_selector, query_parts),
+                timeout=15,
+                rounds=2,
+                urls=AREA_QUERY_URLS,
+            )
+        except RuntimeError as error:
+            print(f"    Skipping batch {index}: {error}")
+            continue
         for element in data.get("elements", []):
             key = (element.get("type", ""), element["id"])
             elements_by_key[key] = element
