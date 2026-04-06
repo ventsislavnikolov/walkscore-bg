@@ -1,7 +1,9 @@
 import { defineConfig, devices } from "@playwright/test";
 
+const e2ePort = 3100;
+
 export default defineConfig({
-  testDir: "./__tests__/e2e",
+  testDir: "./e2e",
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
@@ -12,7 +14,7 @@ export default defineConfig({
     ["line"],
   ],
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL: `http://127.0.0.1:${e2ePort}`,
     trace: "on-first-retry",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
@@ -40,8 +42,8 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "pnpm dev",
-    url: "http://localhost:3000",
+    command: `E2E_MOCKS=1 pnpm dev --host 127.0.0.1 --port ${e2ePort}`,
+    url: `http://127.0.0.1:${e2ePort}`,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
   },
