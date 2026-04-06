@@ -77,6 +77,7 @@
     "dotenv-cli": "^11.0.0",
     "husky": "^9.1.7",
     "jsdom": "^28.1.0",
+    "nitro": "3.0.260311-beta",
     "semantic-release": "^25.0.3",
     "semantic-release-ado": "^1.4.0",
     "typescript": "^6.0.2",
