@@ -8,9 +8,10 @@ type MapInstance = import("maplibre-gl").Map;
 type MarkerInstance = import("maplibre-gl").Marker;
 type ProtocolInstance = import("pmtiles").Protocol;
 
-let mapLibrariesPromise:
-  | Promise<{ maplibregl: MaplibreModule["default"]; Protocol: typeof import("pmtiles").Protocol }>
-  | null = null;
+let mapLibrariesPromise: Promise<{
+  maplibregl: MaplibreModule["default"];
+  Protocol: typeof import("pmtiles").Protocol;
+}> | null = null;
 
 function loadMapLibraries() {
   if (!mapLibrariesPromise) {

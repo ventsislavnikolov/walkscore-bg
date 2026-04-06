@@ -37,7 +37,9 @@ describe("vite config", () => {
 
 describe("vercel config", () => {
   test("overrides the framework preset to TanStack Start", () => {
-    const vercelConfig = JSON.parse(fs.readFileSync("./vercel.json", "utf8")) as {
+    const vercelConfig = JSON.parse(
+      fs.readFileSync("./vercel.json", "utf8")
+    ) as {
       framework?: string | null;
     };
 
