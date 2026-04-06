@@ -20,6 +20,9 @@ export default defineConfig({
   },
   build: {
     target: "esnext",
+    // MapLibre is lazy-loaded behind the map routes, so its vendor chunk is
+    // expected to stay large even after moving it out of the initial bundle.
+    chunkSizeWarningLimit: 1200,
   },
   plugins: [
     tanstackStart(),
