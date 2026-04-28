@@ -54,3 +54,8 @@ coverage/e2e-report/
 data/
 pipeline/__pycache__/
 pipeline/tests/__pycache__/
+
+.env*
+.flaskenv*
+!.env.project
+!.env.vault
