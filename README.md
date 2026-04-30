@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- Node.js v24.13.0 (`nvm use` to switch automatically)
+- Node.js v24.15.0 (`nvm use` to switch automatically)
 - pnpm
 
 ## Getting Started
