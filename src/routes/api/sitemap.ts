@@ -66,20 +66,18 @@ ${allPages.map((path) => `  <url><loc>${BASE_URL}${path}</loc></url>`).join("\n"
 export const Route = createFileRoute("/api/sitemap")({
   server: {
     handlers: {
-      GET: async () => {
-        return new Response(createSitemapXml(), {
+      GET: async () =>
+        new Response(createSitemapXml(), {
           headers: {
             "Content-Type": "application/xml; charset=utf-8",
           },
-        });
-      },
-      HEAD: async () => {
-        return new Response(null, {
+        }),
+      HEAD: async () =>
+        new Response(null, {
           headers: {
             "Content-Type": "application/xml; charset=utf-8",
           },
-        });
-      },
+        }),
     },
   },
 });

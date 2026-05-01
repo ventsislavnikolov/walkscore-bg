@@ -44,20 +44,18 @@ function buildOgSvg(requestUrl: string) {
 export const Route = createFileRoute("/api/og")({
   server: {
     handlers: {
-      GET: async ({ request }) => {
-        return new Response(buildOgSvg(request.url), {
+      GET: async ({ request }) =>
+        new Response(buildOgSvg(request.url), {
           headers: {
             "Content-Type": "image/svg+xml; charset=utf-8",
           },
-        });
-      },
-      HEAD: async () => {
-        return new Response(null, {
+        }),
+      HEAD: async () =>
+        new Response(null, {
           headers: {
             "Content-Type": "image/svg+xml; charset=utf-8",
           },
-        });
-      },
+        }),
     },
   },
 });
