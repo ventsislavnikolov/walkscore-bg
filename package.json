@@ -82,7 +82,7 @@
     "semantic-release-ado": "^1.4.0",
     "typescript": "^6.0.2",
     "ultracite": "^7.4.3",
-    "vite": "^8.0.3",
+    "vite": "^8.0.10",
     "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^4.1.2"
   }
